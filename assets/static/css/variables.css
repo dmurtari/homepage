@@ -1,0 +1,50 @@
+:root {
+    --dark-blue-color: #070a31;
+    --dark-green-color: #293c1a;
+    --medium-blue-color: #2b4378;
+    --dark-purple-color: #542097;
+    --light-purple-color: #d7d9fa;
+    --light-blue-color: #74d0f1;
+    --light-green-color: #d3ead2;
+
+    --size-m: 16px;
+
+    --font-color: var(--dark-blue-color);
+    --font2-color: var(--dark-green-color);
+    --bg-color: var(--light-purple-color);
+    --bg2-color: var(--light-green-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --font-color: var(--light-purple-color);
+        --font2-color: var(--light-green-color);
+        --bg-color: var(--dark-blue-color);
+        --bg2-color: var(--dark-green-color);
+    }
+}
+
+a:link,
+a:visited {
+    color: var(--font-color);
+}
+
+a:focus {
+    text-decoration: none;
+    background: var(--bg2-color);
+}
+
+a:hover {
+    text-decoration: none;
+    background: var(--bg2-color);
+}
+
+a:active {
+    background: var(--bg2-color);
+    color: var(--font2-color);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--font-color);
+}
