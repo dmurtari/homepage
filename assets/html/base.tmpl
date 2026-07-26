@@ -1,32 +1,32 @@
-{{define "base"}}
+{{ define "base" }}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>{{template "page:title" .}}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Personal website for Domenic Murtari" />
+	<head>
+		<meta charset="utf-8" />
+		<title>{{ template "page:title" . }}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Personal website for Domenic Murtari" />
 
-    <link rel="stylesheet" href="/static/css/normalize.css" />
-    <link rel="stylesheet" href="/static/css/variables.css" />
-    <link rel="stylesheet" href="/static/css/base.css" />
+		<link rel="stylesheet" href="/static/css/normalize.css" />
+		<link rel="stylesheet" href="/static/css/variables.css" />
+		<link rel="stylesheet" href="/static/css/base.css" />
 
-    {{ template "page:head" .}}
-  </head>
-  <body>
-    <header class="layout--column-center">
-      <div class="header-content">
-        <h1>Domenic Murtari</h1>
-      </div>
-    </header>
+		{{ template "page:head" . }}
+	</head>
+	<body>
+		<header class="layout--column-center">
+			<div class="header-content">
+				<h1>Domenic Murtari</h1>
+			</div>
+		</header>
 
-    <nav class="layout--column-center">
-      <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-      </ul>
-    </nav>
+		<nav class="layout--column-center">
+			<ul class="nav-links">
+				<li><a href="/">Home</a></li>
+			</ul>
+		</nav>
 
-    <div class="layout--column-center">{{template "page:content" .}}</div>
-  </body>
+		<div class="layout--column-center">{{ template "page:content" . }}</div>
+	</body>
 </html>
-{{end}}
+{{ end }}

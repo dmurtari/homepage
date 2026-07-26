@@ -1,50 +1,53 @@
 {{ define "page:title" }}Home{{ end }}
 
-{{ define "page:head"}}
+{{ define "page:head" }}
 <link rel="stylesheet" href="/static/css/home.css" />
-{{end}}
+{{ end }}
 
 {{ define "page:content" }}
 <div class="layout--sidebar-main home">
-  <sidebar class="home__sidebar">
-    <img
-      src="/static/img/profile.jpg"
-      alt="Profile Picture"
-      style="width: 100%"
-    />
-    <div>
-      <h3>Also at</h3>
-      <ul class="home__sidebar-links">
-        <li>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://codeberg.org/dmurtari"
-            >Codeberg</a
-          >
-        </li>
-        <li>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://github.com/dmurtari"
-            >Github (mirror)</a
-          >
-        </li>
-        <li>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://www.linkedin.com/in/dmurtari/"
-            >LinkedIn</a
-          >
-        </li>
-      </ul>
-    </div>
-  </sidebar>
+	<sidebar class="home__sidebar">
+		<img
+			src="/static/img/profile.jpg"
+			alt="Profile Picture"
+			style="width: 100%"
+		/>
+		<div>
+			<h3>Also at</h3>
+			<ul class="home__sidebar-links">
+				<li>
+					<a
+						target="_blank"
+						rel="noopener noreferrer"
+						href="https://codeberg.org/dmurtari"
+					>
+						Codeberg
+					</a>
+				</li>
+				<li>
+					<a
+						target="_blank"
+						rel="noopener noreferrer"
+						href="https://github.com/dmurtari"
+					>
+						Github (mirror)
+					</a>
+				</li>
+				<li>
+					<a
+						target="_blank"
+						rel="noopener noreferrer"
+						href="https://www.linkedin.com/in/dmurtari/"
+					>
+						LinkedIn
+					</a>
+				</li>
+			</ul>
+		</div>
+	</sidebar>
 
-  <main>
-    <p>Under construction!</p>
-  </main>
+	<main>
+		<p>Under construction!</p>
+	</main>
 </div>
 {{ end }}
