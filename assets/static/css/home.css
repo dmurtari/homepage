@@ -1,0 +1,16 @@
+sidebar {
+    margin: 0 var(--size-m);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-m);
+}
+
+main {
+    margin: 0 var(--size-m);
+}
+
+.home__sidebar-links {
+    list-style-type: none;
+    padding: 0;
+}
