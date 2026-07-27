@@ -3,6 +3,16 @@ body {
     color: var(--font-color);
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+}
+
 nav {
     border-bottom: 1px solid var(--font-color);
     border-top: 1px solid var(--font-color);
@@ -44,5 +54,5 @@ nav {
     display: flex;
     gap: 16px;
     align-items: center;
-    margin: 0 var(--size-m);
+    margin: var(--size-m);
 }
