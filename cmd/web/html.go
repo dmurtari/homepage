@@ -32,6 +32,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileserver))
 	mux.HandleFunc("GET /{$}", app.home)
+	mux.HandleFunc("GET /apps", app.apps)
 
 	logger.Info("starting server", "port", 5051)
 	err = http.ListenAndServe(":5051", mux)

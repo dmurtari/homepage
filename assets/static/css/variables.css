@@ -16,6 +16,7 @@
     --font2-color: var(--dark-green-color);
     --bg-color: var(--light-purple-color);
     --bg2-color: var(--light-green-color);
+    --bgpre-color: var(--light-green-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,6 +25,7 @@
         --font2-color: var(--light-green-color);
         --bg-color: var(--dark-blue-color);
         --bg2-color: var(--dark-green-color);
+        --bgpre-color: var(--medium-blue-color);
     }
 }
 
@@ -50,4 +52,10 @@ a:active {
 body {
     background-color: var(--bg-color);
     color: var(--font-color);
+}
+
+pre {
+    background-color: var(--bgpre-color);
+    padding: var(--size-m);
+    border-radius: var(--size-s);
 }
