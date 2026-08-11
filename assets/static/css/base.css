@@ -1,16 +1,9 @@
 body {
+    font-family:
+        system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji";
     background-color: var(--bg-color);
     color: var(--font-color);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-    margin: 0;
 }
 
 nav {
@@ -21,7 +14,7 @@ nav {
 
     .nav-links {
         display: flex;
-        gap: var(--size-m);
+        gap: var(--size-l);
         padding: 0;
         list-style-type: none;
         margin: 0 var(--size-m);
@@ -30,7 +23,7 @@ nav {
 
 .layout--column-center {
     display: grid;
-    grid-template-columns: 1fr minmax(auto, 800px) 1fr;
+    grid-template-columns: 1fr minmax(auto, 768px) 1fr;
 
     > * {
         grid-column: 2;
@@ -39,7 +32,7 @@ nav {
 
 .layout--sidebar-main {
     display: grid;
-    grid-template-columns: 12rem minmax(auto, 800px);
+    grid-template-columns: 12rem minmax(auto, 768px);
 
     > sidebar {
         grid-column: 1;
@@ -47,6 +40,21 @@ nav {
 
     > main {
         grid-column: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout--sidebar-main {
+        grid-template-columns: 1fr;
+        gap: var(--size-m);
+
+        > sidebar {
+            grid-column: 1;
+        }
+
+        > main {
+            grid-column: 1;
+        }
     }
 }
 

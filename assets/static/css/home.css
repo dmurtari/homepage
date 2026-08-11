@@ -6,6 +6,13 @@
     gap: var(--size-m);
 }
 
+@media (max-width: 768px) {
+    .sidebar {
+        flex-direction: row;
+        gap: var(--size-m);
+    }
+}
+
 .sidebar__links {
     list-style-type: none;
     padding: 0;
