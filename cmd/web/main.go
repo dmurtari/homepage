@@ -1,58 +1,44 @@
 package main
 
 import (
-	"bytes"
-	"html/template"
-	"io/fs"
+	"log/slog"
 	"net/http"
-	"time"
+	"os"
+
+	"murtari.me/web/assets"
 )
 
-type htmlRenderer struct {
-	templateFS      fs.FS
-	sharedTemplates *template.Template
+type application struct {
+	logger *slog.Logger
+	html   *htmlRenderer
 }
 
-func newHTMLRenderer(templateFS fs.FS, sharedTemplateFiles ...string) (*htmlRenderer, error) {
-	funcs := template.FuncMap{
-		"now": time.Now,
-	}
+func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	sharedTemplates, err := template.New("").Funcs(funcs).ParseFS(templateFS, sharedTemplateFiles...)
+	htmlRenderer, err := newHTMLRenderer(assets.HTMLFiles, "base.tmpl", "partials/*.tmpl")
 	if err != nil {
-		return nil, err
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
-	r := &htmlRenderer{
-		templateFS:      templateFS,
-		sharedTemplates: sharedTemplates,
+	app := &application{
+		logger: logger,
+		html:   htmlRenderer,
 	}
 
-	return r, nil
-}
+	fileserver := http.FileServerFS(assets.StaticFiles)
 
-func (h *htmlRenderer) render(w http.ResponseWriter, status int, data any, templateName string, additionalTemplateFiles ...string) error {
-	ts, err := h.sharedTemplates.Clone()
+	mux := http.NewServeMux()
+	mux.Handle("GET /static/", http.StripPrefix("/static", fileserver))
+	mux.HandleFunc("GET /{$}", app.home)
+	mux.HandleFunc("GET /apps", app.apps)
+	mux.HandleFunc("GET /photos", app.photos)
+
+	logger.Info("starting server", "port", 5051)
+	err = http.ListenAndServe(":5051", mux)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	if len(additionalTemplateFiles) > 0 {
-		ts, err = ts.ParseFS(h.templateFS, additionalTemplateFiles...)
-		if err != nil {
-			return err
-		}
-	}
-
-	buf := new(bytes.Buffer)
-
-	err = ts.ExecuteTemplate(buf, templateName, data)
-	if err != nil {
-		return err
-	}
-
-	w.WriteHeader(status)
-	buf.WriteTo(w)
-
-	return nil
 }

@@ -1,0 +1,21 @@
+{{ define "page:title" }}Domenic Murtari | Photos{{ end }}
+
+{{ define "page:head" }}
+<link rel="stylesheet" href="/static/css/photos.css" />
+{{ end }}
+
+{{ define "page:content" }}
+<main>
+	<section class="gallery">
+		{{ template "photos:gallery" . }}
+	</section>
+</main>
+{{ end }}
+
+{{ define "photos:gallery" }}
+{{ range . }}
+	<div class="gallery__item">
+		<img src="{{ .Src }}/thumb.jpg" alt="{{ .Description }}" />
+	</div>
+{{ end }}
+{{ end }}
