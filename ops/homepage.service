@@ -1,12 +1,12 @@
 [Unit]
 Description=My homepage
 After=network.target
-Environment=PHOTO_DIR=/var/www/photos
 
 [Service]
 Type=simple
 User=deploy
 Group=deploy
+Environment=PHOTO_DIR=/var/www/photos
 WorkingDirectory=/opt/homepage/homepage
 ExecStart=/opt/homepage/homepage/app
 Restart=on-failure
