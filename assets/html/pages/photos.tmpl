@@ -15,7 +15,7 @@
 {{ define "photos:gallery" }}
 {{ range . }}
 	<div class="gallery__item">
-		<img src="{{ .Src }}/thumb.jpg" alt="{{ .Description }}" />
+		<img src="{{ .ThumbnailURL }}" alt="{{ .Description }}" />
 	</div>
 {{ end }}
 {{ end }}
