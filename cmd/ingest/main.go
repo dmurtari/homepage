@@ -23,17 +23,16 @@ const (
 func main() {
 	srcDir := flag.String("src", "", "Source images")
 	outDir := flag.String("out", "", "Output images")
-	manifestDir := flag.String("manifest", "", "Manifest file")
 	overwrite := flag.Bool("overwrite", false, "Overwrite existing images")
 
 	flag.Parse()
 
-	if err := run(*srcDir, *outDir, *manifestDir, *overwrite); err != nil {
+	if err := run(*srcDir, *outDir, *overwrite); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(srcDir, outDir, manifestDir string, overwrite bool) error {
+func run(srcDir, outDir string, overwrite bool) error {
 	fmt.Println("Reading from:", srcDir)
 
 	files, err := os.ReadDir(srcDir)
@@ -41,7 +40,7 @@ func run(srcDir, outDir, manifestDir string, overwrite bool) error {
 		return fmt.Errorf("Failed to open src: %w", err)
 	}
 
-	manifestPath := filepath.Join(manifestDir, "manifest.json")
+	manifestPath := filepath.Join(outDir, "manifest.json")
 
 	existingManifest, err := parseManifest(manifestPath)
 	if err != nil {
