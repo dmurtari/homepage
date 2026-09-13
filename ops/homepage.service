@@ -1,6 +1,7 @@
 [Unit]
 Description=My homepage
 After=network.target
+Environment=PHOTO_DIR=/var/www/photos
 
 [Service]
 Type=simple

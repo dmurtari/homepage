@@ -9,8 +9,9 @@ import (
 )
 
 type application struct {
-	logger *slog.Logger
-	html   *htmlRenderer
+	logger   *slog.Logger
+	html     *htmlRenderer
+	photoDir string
 }
 
 func main() {
@@ -22,15 +23,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	photoDir := os.Getenv("PHOTO_DIR")
+	if photoDir == "" {
+		photoDir = "./tmp/out"
+	}
+
 	app := &application{
-		logger: logger,
-		html:   htmlRenderer,
+		logger:   logger,
+		html:     htmlRenderer,
+		photoDir: photoDir,
 	}
 
 	fileserver := http.FileServerFS(assets.StaticFiles)
+	photoFileServer := http.FileServer(http.Dir(app.photoDir))
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileserver))
+	mux.Handle("GET /media/photos/", http.StripPrefix("/media/photos", photoFileServer))
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /apps", app.apps)
 	mux.HandleFunc("GET /photos", app.photos)
