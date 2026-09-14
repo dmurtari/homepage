@@ -57,10 +57,13 @@ func run(srcDir, outDir string, overwrite bool) error {
 		overwrote := false
 
 		// If file is already in the manifest, skip
-		if existingSlugs[slug] && !overwrite {
+		if existingSlugs[slug] {
 			fmt.Println("Skipping existing file:", file.Name())
 			overwrote = true
-			continue
+
+			if !overwrite {
+				continue
+			}
 		}
 
 		err = os.MkdirAll(outDir, os.ModePerm)
@@ -97,6 +100,7 @@ func run(srcDir, outDir string, overwrite bool) error {
 			for i, p := range existingManifest {
 				if p.Slug == slug {
 					existingManifest[i] = photo
+					break
 				}
 			}
 		} else {
@@ -180,8 +184,10 @@ func populateExif(photo *photos.Photo, srcPath string) error {
 	}
 
 	if tag, err := x.Get(exif.FNumber); err == nil {
-		if v, err := tag.Float(0); err == nil {
-			photo.Aperture = fmt.Sprintf("f/%.1f", v)
+		if r, err := tag.Rat(0); err == nil {
+			v, _ := r.Float64()
+			s := fmt.Sprintf("%.1f", v)
+			photo.Aperture = "f/" + strings.TrimSuffix(s, ".0")
 		}
 	}
 
