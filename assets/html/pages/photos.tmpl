@@ -6,18 +6,39 @@
 
 {{ define "page:content" }}
 <main>
-	<section class="gallery">
-		{{ template "photos:gallery" . }}
-	</section>
+	{{ if eq .View "slideshow" }}
+		{{ template "photos:slideshow" . }}
+	{{ else }}
+		{{ template "photos:gallery" .Photos }}
+	{{ end }}
 </main>
 {{ end }}
 
 {{ define "photos:gallery" }}
-{{ range . }}
-	<div class="gallery__item">
-		<div class="image">
-			<img src="{{ .ThumbnailURL }}" alt="{{ .Description }}" />
+<section class="gallery">
+	{{ range $i, $p := . }}
+		<div class="gallery__item">
+			<div class="image">
+				<a href="/photos?view=slideshow&index={{ $i }}">
+					<img src="{{ $p.ThumbnailURL }}" alt="{{ .Description }}" />
+				</a>
+			</div>
 		</div>
-	</div>
+	{{ end }}
+</section>
 {{ end }}
+
+{{ define "photos:slideshow" }}
+<section class="slideshow">
+	<div class="slideshow__subject">
+		<img src="{{ .Current.FullSizeURL }}" alt="{{ .Current.Description }}" />
+	</div>
+	<div class="slideshow__nav">
+		{{ range $i, $p := .Photos }}
+			<a href="/photos?view=slideshow&index={{ $i }}" class="slideshow__nav-item {{ if eq $i $.Index }}active{{ end }}">
+				<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
+			</a>
+		{{ end }}
+	</div>
+</section>
 {{ end }}

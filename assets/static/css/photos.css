@@ -4,9 +4,60 @@
     grid-gap: 10px;
 }
 
-.image {
+.gallery__item {
+    .image {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        display: block;
+        background: #767676;
+
+        border-radius: 4px;
+        shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+}
+
+.slideshow {
+    position: relative;
+    width: 100%;
     height: 100%;
+
     display: flex;
-    justify-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.slideshow__nav {
+    display: flex;
+    overflow-x: auto;
     align-items: center;
+    gap: 5px;
+
+    img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: cover;
+    }
+}
+
+.slideshow__nav-item {
+    width: 100px;
+    height: 100px;
+    flex: 0 0 100px;
+    display: block;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #767676;
+        display: block;
+    }
 }

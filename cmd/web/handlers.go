@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"murtari.me/web/internal/photos"
 )
@@ -14,6 +15,13 @@ type photoView struct {
 	photos.Photo
 	ThumbnailURL string
 	FullSizeURL  string
+}
+
+type photosPage struct {
+	Photos  []photoView
+	View    string
+	Current photoView
+	Index   int
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +66,19 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = app.html.render(w, 200, v, "base", "pages/photos.tmpl")
+	p := photosPage{Photos: v, View: "gallery"}
+	if r.URL.Query().Get("view") == "slideshow" && len(v) > 0 {
+		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
+		if err != nil || idx < 0 || idx >= len(v) {
+			idx = 0
+		}
+
+		p.Index = idx
+		p.View = "slideshow"
+		p.Current = v[idx]
+	}
+
+	err = app.html.render(w, 200, p, "base", "pages/photos.tmpl")
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, http.StatusText(500), 500)
