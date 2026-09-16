@@ -24,6 +24,10 @@ type photosPage struct {
 	Index   int
 }
 
+func isHTMXRequest(r *http.Request) bool {
+	return r.Header.Get("HX-Request") == "true"
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	err := app.html.render(w, 200, nil, "base", "pages/home.tmpl")
 	if err != nil {
@@ -83,4 +87,51 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		app.logger.Error(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
+}
+
+func (app *application) photoSlideshowSubject(w http.ResponseWriter, r *http.Request) {
+
+	mp := filepath.Join(app.photoDir, "manifest.json")
+	data, err := os.ReadFile(mp)
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	var photos []photos.Photo
+	err = json.Unmarshal(data, &photos)
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	v := make([]photoView, len(photos))
+	for i, p := range photos {
+		v[i] = photoView{
+			Photo:        p,
+			ThumbnailURL: fmt.Sprintf("/media/photos/%s/thumb.jpg", p.Slug),
+			FullSizeURL:  fmt.Sprintf("/media/photos/%s/full.jpg", p.Slug),
+		}
+	}
+
+	idx, err := strconv.Atoi(r.URL.Query().Get("index"))
+	if err != nil || idx < 0 || idx >= len(v) {
+		idx = 0
+	}
+
+	template := "base"
+
+	if isHTMXRequest(r) {
+		template = "photos:slideshow:subject"
+	}
+
+	p := photosPage{Current: v[idx], Index: idx}
+	err = app.html.render(w, 200, p, template, "pages/photos.tmpl")
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+	}
+
 }

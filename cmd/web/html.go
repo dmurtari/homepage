@@ -51,6 +51,7 @@ func (h *htmlRenderer) render(w http.ResponseWriter, status int, data any, templ
 		return err
 	}
 
+	w.Header().Add("Vary", "HX-Request")
 	w.WriteHeader(status)
 	buf.WriteTo(w)
 
