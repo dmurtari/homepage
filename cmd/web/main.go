@@ -43,7 +43,6 @@ func main() {
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /apps", app.apps)
 	mux.HandleFunc("GET /photos", app.photos)
-	mux.HandleFunc("GET /photos/subject", app.photoSlideshowSubject)
 
 	logger.Info("starting server", "port", 5051)
 	err = http.ListenAndServe(":5051", mux)

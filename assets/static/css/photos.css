@@ -1,4 +1,6 @@
 .gallery {
+    padding-bottom: var(--size-m);
+
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     grid-gap: 10px;
@@ -9,10 +11,14 @@
         aspect-ratio: 1 / 1;
         width: 100%;
         display: block;
-        background: #767676;
+        background: var(--photo-bg-color);
 
         border-radius: 4px;
-        shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+            box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.1s ease-in-out;
+        }
     }
 
     img {
@@ -33,6 +39,18 @@
     gap: 10px;
 }
 
+.slideshow__subject {
+    height: clamp(200px, 100vh, 600px);
+    width: 100%;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+}
+
 .slideshow__nav {
     display: flex;
     overflow-x: auto;
@@ -40,24 +58,32 @@
     gap: 5px;
 
     img {
-        max-width: 100px;
         max-height: 100px;
         object-fit: cover;
     }
 }
 
 .slideshow__nav-item {
-    width: 100px;
     height: 100px;
-    flex: 0 0 100px;
+    cursor: pointer;
+
+    flex: 0 0 auto;
     display: block;
     overflow: hidden;
 
     img {
-        width: 100%;
+        width: auto;
         height: 100%;
-        object-fit: contain;
-        background: #767676;
         display: block;
+    }
+
+    &.active {
+        outline: 2px solid var(--font-color);
+        outline-offset: -2px;
+    }
+
+    &:hover {
+        outline: 2px solid var(--font2-color);
+        outline-offset: -2px;
     }
 }

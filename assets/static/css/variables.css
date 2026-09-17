@@ -6,6 +6,7 @@
     --light-purple-color: #d7d9fa;
     --light-blue-color: #74d0f1;
     --light-green-color: #d3ead2;
+    --middle-grey-color: #767676;
 
     --size-xs: 4px;
     --size-s: 8px;
@@ -26,6 +27,7 @@
         --bg-color: var(--dark-blue-color);
         --bg2-color: var(--dark-green-color);
         --bgpre-color: var(--medium-blue-color);
+        --photo-bg-color: var(--middle-grey-color);
     }
 }
 

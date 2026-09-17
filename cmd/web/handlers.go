@@ -70,6 +70,7 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	t := "base"
 	p := photosPage{Photos: v, View: "gallery"}
 	if r.URL.Query().Get("view") == "slideshow" && len(v) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
@@ -80,58 +81,15 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		p.Index = idx
 		p.View = "slideshow"
 		p.Current = v[idx]
-	}
 
-	err = app.html.render(w, 200, p, "base", "pages/photos.tmpl")
-	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-	}
-}
-
-func (app *application) photoSlideshowSubject(w http.ResponseWriter, r *http.Request) {
-
-	mp := filepath.Join(app.photoDir, "manifest.json")
-	data, err := os.ReadFile(mp)
-	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	var photos []photos.Photo
-	err = json.Unmarshal(data, &photos)
-	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	v := make([]photoView, len(photos))
-	for i, p := range photos {
-		v[i] = photoView{
-			Photo:        p,
-			ThumbnailURL: fmt.Sprintf("/media/photos/%s/thumb.jpg", p.Slug),
-			FullSizeURL:  fmt.Sprintf("/media/photos/%s/full.jpg", p.Slug),
+		if isHTMXRequest(r) {
+			t = "photos:slideshow:subject"
 		}
 	}
 
-	idx, err := strconv.Atoi(r.URL.Query().Get("index"))
-	if err != nil || idx < 0 || idx >= len(v) {
-		idx = 0
-	}
-
-	template := "base"
-
-	if isHTMXRequest(r) {
-		template = "photos:slideshow:subject"
-	}
-
-	p := photosPage{Current: v[idx], Index: idx}
-	err = app.html.render(w, 200, p, template, "pages/photos.tmpl")
+	err = app.html.render(w, 200, p, t, "pages/photos.tmpl")
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
-
 }
