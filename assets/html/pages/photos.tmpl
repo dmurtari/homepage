@@ -2,36 +2,6 @@
 
 {{ define "page:head" }}
 <link rel="stylesheet" href="/static/css/photos.css" />
-{{ end }}
-
-{{ define "page:content" }}
-<main>
-	{{ if eq .View "slideshow" }}
-		{{ template "photos:slideshow" . }}
-	{{ else }}
-		{{ template "photos:gallery" .Photos }}
-	{{ end }}
-</main>
-{{ end }}
-
-{{ define "photos:gallery" }}
-<section class="gallery">
-	{{ range $i, $p := . }}
-		<div class="gallery__item">
-			<div class="image">
-				<a href="/photos?view=slideshow&index={{ $i }}">
-					<img src="{{ $p.ThumbnailURL }}" alt="{{ .Description }}" />
-				</a>
-			</div>
-		</div>
-	{{ end }}
-</section>
-{{ end }}
-
-{{ define "photos:slideshow" }}
-<section class="slideshow">
-	{{ template "photos:slideshow:subject" . }}
-</section>
 
 <script>
   function scrollActiveNavItemIntoView() {
@@ -46,28 +16,98 @@
   }
 
   document.addEventListener('DOMContentLoaded', scrollActiveNavItemIntoView);
-  document.addEventListener('htmx:afterSettle', scrollActiveThumbIntoView);
 </script>
+{{ end }}
+
+{{ define "page:content" }}
+<main>
+	<div id="photos-page">
+		{{ template "photos:page" . }}
+	</div>
+</main>
+{{ end }}
+
+{{ define "photos:page" }}
+{{ template "photos:toolbar" . }}
+{{ if eq .View "slideshow" }}
+	{{ template "photos:slideshow" . }}
+{{ else }}
+	{{ template "photos:gallery" .Photos }}
+{{ end }}
+{{ end }}
+
+{{ define "photos:toolbar" }}
+<div class="toolbar">
+	<div class="view-toggle" role="group" aria-label="View mode">
+		<button
+			aria-pressed="{{ if eq .View "gallery" }}true{{ else }}false{{ end }}"
+			hx-get="/photos?view=gallery"
+			hx-target="#photos-page"
+			hx-push-url="true"
+			class="{{ if eq .View "gallery" }}active{{ end }}">
+			Gallery
+		</button>
+		<button
+			aria-pressed="{{ if eq .View "slideshow" }}true{{ else }}false{{ end }}"
+			hx-get="/photos?view=slideshow"
+			hx-target="#photos-page"
+			hx-push-url="true"
+			class="{{ if eq .View "slideshow" }}active{{ end }}">
+			Slideshow
+		</button>
+	</div>
+</div>
+{{ end }}
+
+{{ define "photos:gallery" }}
+<section class="gallery">
+	{{ range $i, $p := . }}
+		<div class="gallery__item">
+			<div class="image">
+				<a href="/photos?view=slideshow&index={{ $i }}">
+					<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
+				</a>
+			</div>
+		</div>
+	{{ end }}
+</section>
+{{ end }}
+
+{{ define "photos:slideshow" }}
+<section class="slideshow" id="slideshow">
+	{{ template "photos:slideshow:nav" . }}
+	{{ template "photos:slideshow:subject" . }}
+</section>
 {{ end }}
 
 {{ define "photos:slideshow:subject" }}
 <div class="slideshow__subject" id="slideshow-subject">
 	<img src="{{ .Current.FullSizeURL }}" alt="{{ .Current.Description }}" />
 </div>
-{{ template "photos:slideshow:nav" . }}
 {{ end }}
 
 {{ define "photos:slideshow:nav" }}
-<div class="slideshow__nav" id="slideshow-nav" hx-swap-oob="innerHTML">
-	{{ range $i, $p := .Photos }}
-		<a href="/photos?view=slideshow&index={{ $i }}"
-			hx-get="/photos?view=slideshow&index={{ $i }}"
-			hx-target="#slideshow-subject"
-			hx-swap="outerHTML"
-			hx-push-url="/photos?view=slideshow&index={{ $i }}"
-			class="slideshow__nav-item {{ if eq $i $.Index }}active{{ end }}">
-			<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
-		</a>
-	{{ end }}
+<div class="slideshow__nav" id="slideshow-nav">
+	{{ template "photos:slideshow:nav-items" . }}
+</div>
+{{ end }}
+
+{{ define "photos:slideshow:nav-items" }}
+{{ range $i, $p := .Photos }}
+	<a href="/photos?view=slideshow&index={{ $i }}"
+		hx-get="/photos?view=slideshow&index={{ $i }}"
+		hx-target="#slideshow-subject"
+		hx-swap="outerHTML"
+		hx-push-url="true"
+		class="slideshow__nav-item {{ if eq $i $.Index }}active{{ end }}">
+		<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
+	</a>
+{{ end }}
+{{ end }}
+
+{{ define "photos:slideshow:swap-target" }}
+{{ template "photos:slideshow:subject" . }}
+<div hx-swap-oob="innerHTML:#slideshow-nav">
+	{{ template "photos:slideshow:nav-items" . }}
 </div>
 {{ end }}

@@ -70,7 +70,6 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := "base"
 	p := photosPage{Photos: v, View: "gallery"}
 	if r.URL.Query().Get("view") == "slideshow" && len(v) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
@@ -81,9 +80,18 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		p.Index = idx
 		p.View = "slideshow"
 		p.Current = v[idx]
+	}
 
-		if isHTMXRequest(r) {
-			t = "photos:slideshow:subject"
+	t := "base"
+	if isHTMXRequest(r) {
+		app.logger.Info("HX-Target=" + r.Header.Get("HX-Target"))
+		switch r.Header.Get("HX-Target") {
+		case "section#slideshow":
+			t = "photos:slideshow"
+		case "div#slideshow-subject":
+			t = "photos:slideshow:swap-target"
+		default:
+			t = "photos:page"
 		}
 	}
 
