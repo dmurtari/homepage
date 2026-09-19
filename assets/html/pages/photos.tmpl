@@ -3,20 +3,6 @@
 {{ define "page:head" }}
 <link rel="stylesheet" href="/static/css/photos.css" />
 
-<script>
-  function scrollActiveNavItemIntoView() {
-    const activeNavItem = document.querySelector('.slideshow__nav-item.active');
-
-    if (activeNavItem) {
-      activeNavItem.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest'
-      });
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', scrollActiveNavItemIntoView);
-</script>
 {{ end }}
 
 {{ define "page:content" }}
@@ -64,7 +50,10 @@
 	{{ range $i, $p := . }}
 		<div class="gallery__item">
 			<div class="image">
-				<a href="/photos?view=slideshow&index={{ $i }}">
+				<a href="/photos?view=slideshow&index={{ $i }}"
+					hx-get="/photos?view=slideshow&index={{ $i }}"
+					hx-target="#photos-page"
+					hx-push-url="true">
 					<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
 				</a>
 			</div>
@@ -78,6 +67,28 @@
 	{{ template "photos:slideshow:nav" . }}
 	{{ template "photos:slideshow:subject" . }}
 </section>
+
+<script>
+  function scrollActiveNavItemIntoView() {
+    const activeNavItem = document.querySelector('.slideshow__nav-item.active');
+
+    if (activeNavItem) {
+      activeNavItem.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  }
+
+  window.addEventListener('load', () => {
+    scrollActiveNavItemIntoView();
+  });
+  document.addEventListener('htmx:after:swap', () => {
+    scrollActiveNavItemIntoView();
+  })
+
+</script>
+
 {{ end }}
 
 {{ define "photos:slideshow:subject" }}
