@@ -18,6 +18,7 @@
     --bg-color: var(--light-purple-color);
     --bg2-color: var(--light-green-color);
     --bgpre-color: var(--light-green-color);
+    --photo-bg-color: var(--middle-grey-color);
 }
 
 @media (prefers-color-scheme: dark) {

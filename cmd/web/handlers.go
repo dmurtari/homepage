@@ -84,7 +84,6 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 
 	t := "base"
 	if isHTMXRequest(r) {
-		app.logger.Info("HX-Target=" + r.Header.Get("HX-Target"))
 		switch r.Header.Get("HX-Target") {
 		case "section#slideshow":
 			t = "photos:slideshow"
