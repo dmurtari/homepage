@@ -2,7 +2,7 @@
 
 {{ define "page:head" }}
 <link rel="stylesheet" href="/static/css/photos.css" />
-
+<script type="module" src="/static/js/photos.js"></script>
 {{ end }}
 
 {{ define "page:content" }}
@@ -25,22 +25,27 @@
 {{ define "photos:toolbar" }}
 <div class="toolbar">
 	<div class="view-toggle" role="group" aria-label="View mode">
-		<button
-			aria-pressed="{{ if eq .View "gallery" }}true{{ else }}false{{ end }}"
+		<a
+			href="/photos?view=gallery"
+			aria-current="page"
+			{{ if eq .View "gallery" }}disabled{{ end }}
 			hx-get="/photos?view=gallery"
 			hx-target="#photos-page"
 			hx-push-url="true"
 			class="{{ if eq .View "gallery" }}active{{ end }}">
 			Gallery
-		</button>
-		<button
-			aria-pressed="{{ if eq .View "slideshow" }}true{{ else }}false{{ end }}"
+		</a>
+		<a
+			href="/photos?view=slideshow"
+			aria-current="page"
+			{{ if eq .View "slideshow" }}disabled{{ end }}
 			hx-get="/photos?view=slideshow"
 			hx-target="#photos-page"
 			hx-push-url="true"
-			class="{{ if eq .View "slideshow" }}active{{ end }}">
+			class="{{ if eq .View "slideshow" }}active{{ end }}"
+		>
 			Slideshow
-		</button>
+		</a>
 	</div>
 </div>
 {{ end }}
@@ -67,28 +72,6 @@
 	{{ template "photos:slideshow:nav" . }}
 	{{ template "photos:slideshow:subject" . }}
 </section>
-
-<script>
-  function scrollActiveNavItemIntoView() {
-    const activeNavItem = document.querySelector('.slideshow__nav-item.active');
-
-    if (activeNavItem) {
-      activeNavItem.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest'
-      });
-    }
-  }
-
-  window.addEventListener('load', () => {
-    scrollActiveNavItemIntoView();
-  });
-  document.addEventListener('htmx:after:swap', () => {
-    scrollActiveNavItemIntoView();
-  })
-
-</script>
-
 {{ end }}
 
 {{ define "photos:slideshow:subject" }}
@@ -98,8 +81,26 @@
 {{ end }}
 
 {{ define "photos:slideshow:nav" }}
-<div class="slideshow__nav" id="slideshow-nav">
-	{{ template "photos:slideshow:nav-items" . }}
+<div class="slideshow__nav">
+	<button
+		id="scroll-left-button"
+		disabled
+		class="nav-button"
+		aria-label="Scroll slideshow left"
+		onclick="scrollNavLeft()">
+		&lang;
+	</button>
+	<div class="slideshow-nav" id="slideshow-nav">
+		{{ template "photos:slideshow:nav-items" . }}
+	</div>
+	<button
+		id="scroll-right-button"
+		disabled
+		class="nav-button"
+		aria-label="Scroll slideshow right"
+		onclick="scrollNavRight()">
+		&rang;
+	</button>
 </div>
 {{ end }}
 
