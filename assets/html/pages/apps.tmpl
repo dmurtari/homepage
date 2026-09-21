@@ -5,26 +5,28 @@
 {{ end }}
 
 {{ define "page:content" }}
-<main class="layout--column-center">
-	<section class="app">
-		<img src="/static/img/apps/manytime/icon.png" alt="ManyTime Icon" height="256" width="256"/>
-		<h1>ManyTime</h1>
-		<p>
-			<b>ManyTime</b> is a macOS menu bar application that lets you visualize times in different timezones. Created because I wanted a simple way to figure out times, and nothing I could find quite did it in the way that I wanted.
-		</p>
-		<p>Available via homebrew:</p>
+<div class="layout--column-center">
+	<main >
+		<section class="app">
+			<img src="/static/img/apps/manytime/icon.png" alt="ManyTime Icon" height="256" width="256"/>
+			<h1>ManyTime</h1>
+			<p>
+				<b>ManyTime</b> is a macOS menu bar application that lets you visualize times in different timezones. Created because I wanted a simple way to figure out times, and nothing I could find quite did it in the way that I wanted.
+			</p>
+			<p>Available via homebrew:</p>
 		{{/* gotmplfmt-ignore-start */}}
 <pre><code>brew tap dmurtari/tap
 brew install --cask dmurtari/tap/manytime
 </code></pre>
     {{/* gotmplfmt-ignore-end */}}
-		<p>
-			Source code: <a href="https://codeberg.org/dmurtari/ManyTime"
-				target="_blank"
-				rel="noopener noreferrer">
-				https://codeberg.org/dmurtari/ManyTime
-			</a>
-		</p>
-	</section>
-</main>
+			<p>
+				Source code: <a href="https://codeberg.org/dmurtari/ManyTime"
+					target="_blank"
+					rel="noopener noreferrer">
+					https://codeberg.org/dmurtari/ManyTime
+				</a>
+			</p>
+		</section>
+	</main>
+</div>
 {{ end }}

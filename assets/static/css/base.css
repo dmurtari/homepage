@@ -6,11 +6,16 @@ body {
     color: var(--font-color);
 }
 
+body > div {
+    display: grid;
+    min-height: 0;
+}
+
 nav {
     border-bottom: 1px solid var(--font-color);
     border-top: 1px solid var(--font-color);
     padding: 8px 0;
-    margin-bottom: var(--size-l);
+    margin-bottom: var(--size-m);
 
     .nav-links {
         display: flex;
@@ -52,7 +57,7 @@ nav {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .layout--sidebar-main {
         grid-template-columns: 1fr;
         gap: var(--size-m);
@@ -71,5 +76,5 @@ nav {
     display: flex;
     gap: 16px;
     align-items: center;
-    margin: var(--size-m);
+    margin: var(--size-s) var(--size-m);
 }
