@@ -71,7 +71,6 @@
     background: none;
     color: var(--font-color);
     cursor: pointer;
-    font-weight: bold;
 
     &:hover:not([disabled]) {
         background: var(--bg2-color);
@@ -79,7 +78,7 @@
 
     &[disabled] {
         cursor: not-allowed;
-        filter: brightness(0.6);
+        filter: brightness(0.3);
         transition: filter 0.1s ease-in-out;
     }
 }

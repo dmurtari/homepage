@@ -23,7 +23,16 @@ nav {
 
 .layout--column-center {
     display: grid;
-    grid-template-columns: 1fr minmax(auto, 768px) 1fr;
+    grid-template-columns: 1fr minmax(auto, var(--screen-l)) 1fr;
+
+    > * {
+        grid-column: 2;
+    }
+}
+
+.layout--column-center--wide {
+    display: grid;
+    grid-template-columns: 1fr minmax(auto, var(--screen-xl)) 1fr;
 
     > * {
         grid-column: 2;
@@ -32,7 +41,7 @@ nav {
 
 .layout--sidebar-main {
     display: grid;
-    grid-template-columns: 12rem minmax(auto, 768px);
+    grid-template-columns: 12rem minmax(auto, var(--screen-l));
 
     > sidebar {
         grid-column: 1;
