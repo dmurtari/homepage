@@ -58,7 +58,10 @@
 				hx-get="/photos?view=slideshow&index={{ $i }}"
 				hx-target="#photos-page"
 				hx-push-url="true">
-				<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
+				<img
+					src="{{ $p.ThumbnailURL }}"
+					alt="{{ $p.Description }}"
+				/>
 			</a>
 		</div>
 	{{ end }}
@@ -74,7 +77,11 @@
 
 {{ define "photos:slideshow:subject" }}
 <div class="slideshow__subject" id="slideshow-subject">
-	<img src="{{ .Current.FullSizeURL }}" alt="{{ .Current.Description }}" />
+	<img
+		src="{{ .Current.FullSizeURL }}"
+		alt="{{ .Current.Description }}"
+		fetchpriority="high"
+	/>
 </div>
 {{ end }}
 

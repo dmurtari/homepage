@@ -5,6 +5,10 @@ var MediaBaseURL = ""
 type Photo struct {
 	Slug        string    `json:"slug"`
 	Original    string    `json:"original"`
+	ThumbWidth  int       `json:"thumb_width,omitempty"`
+	ThumbHeight int       `json:"thumb_height,omitempty"`
+	FullWidth   int       `json:"full_width,omitempty"`
+	FullHeight  int       `json:"full_height,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Location    string    `json:"location,omitempty"`
 	Camera      string    `json:"camera,omitempty"`

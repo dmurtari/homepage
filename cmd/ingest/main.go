@@ -77,19 +77,26 @@ func run(srcDir, outDir string, overwrite bool) error {
 		}
 
 		fullPath := filepath.Join(srcDir, file.Name())
-		thumb, err := generateImage(fullPath, thumbSize)
+		thumb, tw, th, err := generateImage(fullPath, thumbSize)
 		if err != nil {
 			return fmt.Errorf("Failed to create thumbnail: %w", err)
 		}
 		err = os.WriteFile(filepath.Join(outDir, slug, "thumb.jpg"), thumb, 0644)
 
-		full, err := generateImage(fullPath, fullSize)
+		full, fw, fh, err := generateImage(fullPath, fullSize)
 		if err != nil {
 			return fmt.Errorf("Failed to create thumbnail: %w", err)
 		}
 		err = os.WriteFile(filepath.Join(outDir, slug, "full.jpg"), full, 0644)
 
-		photo := photos.Photo{Slug: slug, Original: file.Name()}
+		photo := photos.Photo{
+			Slug:        slug,
+			Original:    file.Name(),
+			ThumbWidth:  tw,
+			ThumbHeight: th,
+			FullWidth:   fw,
+			FullHeight:  fh,
+		}
 
 		err = populateExif(&photo, fullPath)
 		if err != nil {
@@ -124,18 +131,18 @@ func generateSlug(name string) string {
 	return name
 }
 
-func generateImage(srcPath string, size int) ([]byte, error) {
+func generateImage(srcPath string, size int) ([]byte, int, int, error) {
 	img, err := vips.NewThumbnailFromFile(srcPath, size, size, vips.InterestingNone)
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 
-	buf, _, err := img.ExportJpeg(&vips.JpegExportParams{Quality: jpegQuality})
+	buf, _, err := img.ExportJpeg(&vips.JpegExportParams{Quality: jpegQuality, Interlace: true})
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 
-	return buf, nil
+	return buf, img.Width(), img.Height(), nil
 }
 
 func parseManifest(manifestPath string) ([]photos.Photo, error) {
