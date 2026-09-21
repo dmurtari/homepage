@@ -16,4 +16,4 @@ sync-images:
 		--header-upload "Cache-Control: public, max-age=31536000, immutable"
 
 sync-manifest:
-	rsync -avz --chmod=F644 $(OUT_DIR)/manifest.json $(VPS_HOST):$(VPS_PATH)/manifest.json
+	rsync -avz --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r $(OUT_DIR)/manifest.json $(VPS_HOST):$(VPS_PATH)/manifest.json
