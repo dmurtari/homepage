@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -65,8 +64,8 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 	for i, p := range photos {
 		v[i] = photoView{
 			Photo:        p,
-			ThumbnailURL: fmt.Sprintf("/media/photos/%s/thumb.jpg", p.Slug),
-			FullSizeURL:  fmt.Sprintf("/media/photos/%s/full.jpg", p.Slug),
+			ThumbnailURL: p.ThumbPath(),
+			FullSizeURL:  p.FullPath(),
 		}
 	}
 

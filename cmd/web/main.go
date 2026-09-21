@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"murtari.me/web/assets"
+	"murtari.me/web/internal/photos"
 )
 
 type application struct {
@@ -26,6 +27,10 @@ func main() {
 	photoDir := os.Getenv("PHOTO_DIR")
 	if photoDir == "" {
 		photoDir = "./tmp/out"
+	}
+
+	if v := os.Getenv("MEDIA_BASE_URL"); v != "" {
+		photos.MediaBaseURL = v
 	}
 
 	app := &application{

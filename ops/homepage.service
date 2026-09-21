@@ -7,6 +7,7 @@ Type=simple
 User=deploy
 Group=deploy
 Environment=PHOTO_DIR=/var/www/photos
+Environment=MEDIA_BASE_URL=https://media.murtari.me
 WorkingDirectory=/opt/homepage/homepage
 ExecStart=/opt/homepage/homepage/app
 Restart=on-failure
