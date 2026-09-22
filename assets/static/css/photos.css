@@ -118,8 +118,11 @@ main {
 
     &[disabled] {
         cursor: not-allowed;
-        filter: brightness(0.3);
-        transition: filter 0.1s ease-in-out;
+        border-color: var(--middle-grey-color);
+        color: var(--middle-grey-color);
+        transition:
+            color 0.1s ease-in-out,
+            border-color 0.1s ease-in-out;
     }
 }
 
