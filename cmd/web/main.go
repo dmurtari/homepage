@@ -15,6 +15,14 @@ type application struct {
 	photoDir string
 }
 
+func staticHandler() http.Handler {
+	fs := http.FileServerFS(assets.StaticFiles)
+	return http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "max-age=31536000, public, immutable")
+		fs.ServeHTTP(w, r)
+	}))
+}
+
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
@@ -39,11 +47,10 @@ func main() {
 		photoDir: photoDir,
 	}
 
-	fileserver := http.FileServerFS(assets.StaticFiles)
 	photoFileServer := http.FileServer(http.Dir(app.photoDir))
 
 	mux := http.NewServeMux()
-	mux.Handle("GET /static/", http.StripPrefix("/static", fileserver))
+	mux.Handle("GET /static/", staticHandler())
 	mux.Handle("GET /media/photos/", http.StripPrefix("/media/photos", photoFileServer))
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /apps", app.apps)

@@ -2,9 +2,13 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -13,9 +17,20 @@ type htmlRenderer struct {
 	sharedTemplates *template.Template
 }
 
+func hashPath(path string) string {
+	data, _ := os.ReadFile(path)
+	sum := sha256.Sum256(data)
+	return hex.EncodeToString(sum[:])[:8]
+}
+
+func assetHash(path string) string {
+	return fmt.Sprintf("%s?v=%s", path, hashPath(path))
+}
+
 func newHTMLRenderer(templateFS fs.FS, sharedTemplateFiles ...string) (*htmlRenderer, error) {
 	funcs := template.FuncMap{
-		"now": time.Now,
+		"now":       time.Now,
+		"assetHash": assetHash,
 	}
 
 	sharedTemplates, err := template.New("").Funcs(funcs).ParseFS(templateFS, sharedTemplateFiles...)

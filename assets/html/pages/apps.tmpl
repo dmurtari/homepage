@@ -1,14 +1,14 @@
 {{ define "page:title" }}Domenic | Apps{{ end }}
 
 {{ define "page:head" }}
-<link rel="stylesheet" href="/static/css/apps.css" />
+<link rel="stylesheet" href="{{ assetHash "/static/css/apps.css" }}" />
 {{ end }}
 
 {{ define "page:content" }}
 <div class="layout--column-center">
 	<main >
 		<section class="app">
-			<img src="/static/img/apps/manytime/icon.png" alt="ManyTime Icon" height="256" width="256"/>
+			<img src="{{ assetHash "/static/img/apps/manytime/icon.png" }}" alt="ManyTime Icon" height="256" width="256"/>
 			<h1>ManyTime</h1>
 			<p>
 				<b>ManyTime</b> is a macOS menu bar application that lets you visualize times in different timezones. Created because I wanted a simple way to figure out times, and nothing I could find quite did it in the way that I wanted.
@@ -26,14 +26,14 @@ brew install --cask dmurtari/tap/manytime
 				<div class="screenshot">
 					<img
 						class="visible-dark-mode"
-						src="/static/img/apps/manytime/window-dark.png"
+						src="{{ assetHash "/static/img/apps/manytime/window-dark.png" }}"
 						alt="Dark Mode Screenshot"
 						height="858"
 						width="756"
 					/>
 					<img
 						class="visible-light-mode"
-						src="/static/img/apps/manytime/window-light.png"
+						src="{{ assetHash "/static/img/apps/manytime/window-light.png" }}"
 						alt="Light Mode Screenshot"
 						height="858"
 						width="756"
@@ -42,14 +42,14 @@ brew install --cask dmurtari/tap/manytime
 				<div class="screenshot">
 					<img
 						class="visible-dark-mode"
-						src="/static/img/apps/manytime/settings-dark.png"
+						src="{{ assetHash "/static/img/apps/manytime/settings-dark.png" }}"
 						alt="Dark Mode Settings Screenshot"
 						height="1564"
 						width="1096"
 					/>
 					<img
 						class="visible-light-mode"
-						src="/static/img/apps/manytime/settings-light.png"
+						src="{{ assetHash "/static/img/apps/manytime/settings-light.png" }}"
 						alt="Light Mode Settings Screenshot"
 						height="1564"
 						width="1096"

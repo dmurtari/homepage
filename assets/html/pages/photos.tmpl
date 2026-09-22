@@ -1,9 +1,9 @@
 {{ define "page:title" }}Domenic | Photos{{ end }}
 
 {{ define "page:head" }}
-<link rel="stylesheet" href="/static/css/photos.css" />
+<link rel="stylesheet" href="{{ assetHash "/static/css/photos.css" }}" />
 
-<script type="module" src="/static/js/photos.js"></script>
+<script type="module" src="{{ assetHash "/static/js/photos.js" }}"></script>
 {{ end }}
 
 {{ define "page:content" }}
