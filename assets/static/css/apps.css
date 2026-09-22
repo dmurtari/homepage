@@ -1,5 +1,5 @@
 main {
-    margin: 0 var(--size-m);
+    margin: 0 var(--size-m) var(--size-l);
 }
 
 .app {
@@ -16,5 +16,49 @@ main {
 
     > h1 {
         text-align: center;
+    }
+
+    > h2 {
+        font-size: 1.5rem;
+    }
+}
+
+.app__screenshots {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--size-m);
+    flex-wrap: wrap;
+}
+
+.screenshot {
+    height: 400px;
+    display: flex;
+
+    img {
+        height: 100%;
+        width: auto;
+        max-width: 100%;
+        display: block;
+        object-fit: contain;
+    }
+}
+
+@media (max-width: 479px) {
+    .app__screenshots {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .screenshot {
+        height: auto;
+        width: 100%;
+        max-width: 420px;
+
+        img {
+            height: auto;
+            width: 100%;
+        }
     }
 }

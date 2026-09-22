@@ -78,3 +78,23 @@ nav {
     align-items: center;
     margin: var(--size-s) var(--size-m);
 }
+
+@media (prefers-color-scheme: dark) {
+    .visible-dark-mode {
+        display: block;
+    }
+
+    .visible-light-mode {
+        display: none !important;
+    }
+}
+
+@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
+    .visible-light-mode {
+        display: block;
+    }
+
+    .visible-dark-mode {
+        display: none !important;
+    }
+}
