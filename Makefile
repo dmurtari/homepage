@@ -1,8 +1,4 @@
-SOURCE_DIR := ~/Workspace/source
-OUT_DIR := ./tmp/out
-VPS_HOST := domenic@hetzner
-VPS_PATH := /var/www/photos
-R2_REMOTE := r2:murtari-photos
+include .env
 
 .PHONY: ingest-sync-all ingest sync-images sync-manifest
 
