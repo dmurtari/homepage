@@ -16,6 +16,7 @@ type Photo struct {
 	ISO         string    `json:"iso,omitempty"`
 	Shutter     string    `json:"shutter,omitempty"`
 	GPS         []float64 `json:"gps,omitempty"`
+	Tags        []string  `json:"tags,omitempty"`
 }
 
 func (p Photo) ThumbPath() string { return MediaBaseURL + "/" + p.Slug + "/thumb.jpg" }
