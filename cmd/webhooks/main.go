@@ -17,7 +17,12 @@ type application struct {
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	db, err := database.Open("workouts.db", logger)
+	dbPath := os.Getenv("WORKOUT_DB_PATH")
+	if dbPath == "" {
+		os.Exit(1)
+	}
+
+	db, err := database.Open(dbPath, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
