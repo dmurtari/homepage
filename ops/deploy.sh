@@ -2,12 +2,19 @@
 set -euo pipefail
 
 cd /opt/homepage/homepage
-sudo -u deploy git pull
+run() { sudo -u deploy "$@"; }
 
-sudo -u deploy go build -o app.new ./cmd/web
-sudo -u deploy mv app app.old
-sudo -u deploy mv app.new app
+run git pull
+
+run go build -o app.new ./cmd/web
+run go build -o workout-webhook.new ./cmd/webhooks
+
+run mv app app.old
+run mv app.new app
+
+run mv workout-webhook workout-webhook.old
+run mv workout-webhook.new workout-webhook
 
 sudo systemctl daemon-reload
-sudo systemctl restart homepage
+sudo systemctl restart homepage workout-webhook
 sudo systemctl reload caddy
