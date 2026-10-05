@@ -27,6 +27,23 @@ func isHTMXRequest(r *http.Request) bool {
 	return r.Header.Get("HX-Request") == "true"
 }
 
+func (app *application) loadManifest() error {
+	mp := filepath.Join(app.photoDir, "manifest.json")
+	data, err := os.ReadFile(mp)
+	if err != nil {
+		return err
+	}
+
+	var p []photos.Photo
+	err = json.Unmarshal(data, &p)
+	if err != nil {
+		return err
+	}
+
+	app.manifest = p
+	return nil
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	err := app.html.render(w, 200, nil, "base", "pages/home.tmpl")
 	if err != nil {
@@ -44,21 +61,7 @@ func (app *application) apps(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) photos(w http.ResponseWriter, r *http.Request) {
-	mp := filepath.Join(app.photoDir, "manifest.json")
-	data, err := os.ReadFile(mp)
-	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	var photos []photos.Photo
-	err = json.Unmarshal(data, &photos)
-	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
+	photos := app.manifest
 
 	v := make([]photoView, len(photos))
 	for i, p := range photos {
@@ -93,7 +96,7 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = app.html.render(w, 200, p, t, "pages/photos.tmpl")
+	err := app.html.render(w, 200, p, t, "pages/photos.tmpl")
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, http.StatusText(500), 500)

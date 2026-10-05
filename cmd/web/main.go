@@ -13,6 +13,7 @@ type application struct {
 	logger   *slog.Logger
 	html     *htmlRenderer
 	photoDir string
+	manifest []photos.Photo
 }
 
 func staticHandler() http.Handler {
@@ -47,11 +48,14 @@ func main() {
 		photoDir: photoDir,
 	}
 
-	photoFileServer := http.FileServer(http.Dir(app.photoDir))
+	err = app.loadManifest()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", staticHandler())
-	mux.Handle("GET /media/photos/", http.StripPrefix("/media/photos", photoFileServer))
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /apps", app.apps)
 	mux.HandleFunc("GET /photos", app.photos)
