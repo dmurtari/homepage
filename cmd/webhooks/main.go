@@ -18,13 +18,15 @@ type application struct {
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	dbPath := os.Getenv("WORKOUT_DB_PATH")
+	dbPath := os.Getenv("ACTIVITIES_DB_PATH")
 	if dbPath == "" {
+		logger.Error("ACTIVITIES_DB_PATH is not set")
 		os.Exit(1)
 	}
 
 	secret := os.Getenv("WEBHOOK_SECRET")
 	if secret == "" {
+		logger.Error("WEBHOOK_SECRET is not set")
 		os.Exit(1)
 	}
 
@@ -41,7 +43,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /webhooks/workout", app.workout)
+	mux.HandleFunc("POST /webhooks/activities", app.activities)
 
 	logger.Info("starting server", "port", 5052)
 	err = http.ListenAndServe(":5052", mux)

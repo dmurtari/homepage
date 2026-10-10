@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS workouts (
+CREATE TABLE IF NOT EXISTS activities (
   id TEXT PRIMARY KEY,
   activity_type TEXT NOT NULL,
   start_time TIMESTAMP NOT NULL,

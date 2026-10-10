@@ -7,14 +7,14 @@ run() { sudo -u deploy "$@"; }
 run git pull
 
 run go build -o app.new ./cmd/web
-run go build -o workout-webhook.new ./cmd/webhooks
+run go build -o activities-webhook.new ./cmd/webhooks
 
 run mv app app.old
 run mv app.new app
 
-run mv workout-webhook workout-webhook.old
-run mv workout-webhook.new workout-webhook
+run mv activities-webhook activities-webhook.old
+run mv activities-webhook.new activities-webhook
 
 sudo systemctl daemon-reload
-sudo systemctl restart homepage workout-webhook
+sudo systemctl restart homepage activities-webhook
 sudo systemctl reload caddy

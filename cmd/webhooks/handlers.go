@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (app *application) workout(w http.ResponseWriter, r *http.Request) {
+func (app *application) activities(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		app.logger.Error(err.Error())

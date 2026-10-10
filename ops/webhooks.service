@@ -8,7 +8,7 @@ Group=deploy
 WorkingDirectory=/opt/homepage/homepage
 ExecStart=/opt/homepage/homepage/webhooks
 StateDirectory=data
-Environment=WORKOUT_DB_PATH=/var/lib/data/workouts.db
+Environment=ACTIVITIES_DB_PATH=/var/lib/data/activities.db
 EnvironmentFile=/etc/webhooks/webhooks.env
 Restart=on-failure
 RestartSec=3
