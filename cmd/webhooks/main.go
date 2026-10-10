@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"murtari.me/web/internal/workouts"
+	"murtari.me/web/internal/database"
 )
 
 type application struct {
