@@ -12,6 +12,7 @@ import (
 type application struct {
 	logger *slog.Logger
 	db     *sql.DB
+	secret string
 }
 
 func main() {
@@ -19,6 +20,11 @@ func main() {
 
 	dbPath := os.Getenv("WORKOUT_DB_PATH")
 	if dbPath == "" {
+		os.Exit(1)
+	}
+
+	secret := os.Getenv("WEBHOOK_SECRET")
+	if secret == "" {
 		os.Exit(1)
 	}
 
@@ -43,8 +49,4 @@ func main() {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-}
-
-func (app *application) workout(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
 }
