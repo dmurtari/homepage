@@ -17,6 +17,13 @@ func (app *application) activities(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	apiKey := r.Header.Get("X-Api-Key")
+	if apiKey != app.apiKey {
+		app.logger.Error("invalid API key")
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	signature := r.Header.Get("X-Signature")
 	if signature == "" {
 		app.logger.Error("missing signature header")
@@ -30,7 +37,7 @@ func (app *application) activities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (app *application) verifySignature(signature, body []byte) bool {

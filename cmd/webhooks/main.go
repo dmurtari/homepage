@@ -12,6 +12,7 @@ import (
 type application struct {
 	logger *slog.Logger
 	db     *sql.DB
+	apiKey string
 	secret string
 }
 
@@ -21,6 +22,12 @@ func main() {
 	dbPath := os.Getenv("ACTIVITIES_DB_PATH")
 	if dbPath == "" {
 		logger.Error("ACTIVITIES_DB_PATH is not set")
+		os.Exit(1)
+	}
+
+	apiKey := os.Getenv("WEBHOOK_API_KEY")
+	if apiKey == "" {
+		logger.Error("WEBHOOK_API_KEY is not set")
 		os.Exit(1)
 	}
 
@@ -40,6 +47,8 @@ func main() {
 	app := &application{
 		logger: logger,
 		db:     db,
+		apiKey: apiKey,
+		secret: secret,
 	}
 
 	mux := http.NewServeMux()
