@@ -3,19 +3,23 @@ Description=My homepage
 After=network.target
 
 [Service]
-Type=simple
 User=deploy
 Group=deploy
-Environment=PHOTO_DIR=/var/www/photos
-Environment=MEDIA_BASE_URL=https://media.murtari.me
 WorkingDirectory=/opt/homepage/homepage
 ExecStart=/opt/homepage/homepage/app
+StateDirectory=data
+Environment=PHOTO_DIR=/var/www/photos
+Environment=MEDIA_BASE_URL=https://media.murtari.me
+Environment=ACTIVITIES_DB_PATH=/var/lib/data/activities.db
 Restart=on-failure
 RestartSec=3
+
 StandardOutput=journal
 StandardError=journal
-NoNewPrivileges=true
-PrivateTmp=true
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
 
 [Install]
 WantedBy=multi-user.target
