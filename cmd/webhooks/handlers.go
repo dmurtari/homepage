@@ -17,7 +17,6 @@ func (app *application) activities(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		app.logger.Error(err.Error())
-		var tooBig *http.MaxBytesError
 
 		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 			http.Error(w, http.StatusText(http.StatusRequestEntityTooLarge), http.StatusRequestEntityTooLarge)
