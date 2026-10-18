@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"embed"
 	"log/slog"
 	"net/http"
 	"os"

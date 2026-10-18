@@ -6,14 +6,16 @@ import (
 	"os"
 
 	"murtari.me/web/assets"
+	"murtari.me/web/internal/database"
 	"murtari.me/web/internal/photos"
 )
 
 type application struct {
-	logger   *slog.Logger
-	html     *htmlRenderer
-	photoDir string
-	manifest []photos.Photo
+	logger    *slog.Logger
+	html      *htmlRenderer
+	photoDir  string
+	photoRepo *photos.PhotoRepository
+	manifest  []photos.Photo
 }
 
 func staticHandler() http.Handler {
@@ -47,10 +49,25 @@ func main() {
 		photos.MediaBaseURL = v
 	}
 
+	photoDbPath := os.Getenv("PHOTO_DB_PATH")
+	if photoDbPath == "" {
+		photoDbPath = "./tmp/out/photos.db"
+	}
+
+	photoDb, err := database.Open(photoDbPath, "photos", nil)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	defer photoDb.Close()
+
+	photoRepo := photos.NewPhotosRepository(photoDb)
+
 	app := &application{
-		logger:   logger,
-		html:     htmlRenderer,
-		photoDir: photoDir,
+		logger:    logger,
+		html:      htmlRenderer,
+		photoDir:  photoDir,
+		photoRepo: photoRepo,
 	}
 
 	err = app.loadManifest()

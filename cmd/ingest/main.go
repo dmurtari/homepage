@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/rwcarlsen/goexif/exif"
+	"murtari.me/web/internal/database"
 	"murtari.me/web/internal/photos"
 )
 
@@ -23,16 +25,17 @@ const (
 func main() {
 	srcDir := flag.String("src", "", "Source images")
 	outDir := flag.String("out", "", "Output images")
+	useDB := flag.Bool("db", false, "Write to database")
 	overwrite := flag.Bool("overwrite", false, "Overwrite existing images")
 
 	flag.Parse()
 
-	if err := run(*srcDir, *outDir, *overwrite); err != nil {
+	if err := run(*srcDir, *outDir, *overwrite, *useDB); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(srcDir, outDir string, overwrite bool) error {
+func run(srcDir, outDir string, overwrite bool, useDB bool) error {
 	fmt.Println("Reading from:", srcDir)
 
 	files, err := os.ReadDir(srcDir)
@@ -40,15 +43,24 @@ func run(srcDir, outDir string, overwrite bool) error {
 		return fmt.Errorf("Failed to open src: %w", err)
 	}
 
-	manifestPath := filepath.Join(outDir, "manifest.json")
+	var existingPhotos []photos.Photo
 
-	existingManifest, err := parseManifest(manifestPath)
-	if err != nil {
-		return fmt.Errorf("Error reading manifest: %w", err)
+	if useDB {
+		dbPath := filepath.Join(outDir, "photos.db")
+		existingPhotos, err = readDatabase(dbPath)
+		if err != nil {
+			return fmt.Errorf("Failed to read from database: %w", err)
+		}
+	} else {
+		manifestPath := filepath.Join(outDir, "manifest.json")
+		existingPhotos, err = parseManifest(manifestPath)
+		if err != nil {
+			return fmt.Errorf("Error reading manifest: %w", err)
+		}
 	}
 
 	existingSlugs := make(map[string]bool)
-	for _, photo := range existingManifest {
+	for _, photo := range existingPhotos {
 		existingSlugs[photo.Slug] = true
 	}
 
@@ -56,7 +68,6 @@ func run(srcDir, outDir string, overwrite bool) error {
 		slug := generateSlug(file.Name())
 		overwrote := false
 
-		// If file is already in the manifest, skip
 		if existingSlugs[slug] {
 			fmt.Println("Skipping existing file:", file.Name())
 			overwrote = true
@@ -104,20 +115,28 @@ func run(srcDir, outDir string, overwrite bool) error {
 		}
 
 		if overwrote {
-			for i, p := range existingManifest {
+			for i, p := range existingPhotos {
 				if p.Slug == slug {
-					existingManifest[i] = photo
+					existingPhotos[i] = photo
 					break
 				}
 			}
 		} else {
-			existingManifest = append(existingManifest, photo)
+			existingPhotos = append(existingPhotos, photo)
 		}
 	}
 
-	err = writeManifest(manifestPath, existingManifest)
-	if err != nil {
-		return fmt.Errorf("Failed to write manifest: %w", err)
+	if useDB {
+		err = writeDatabase(filepath.Join(outDir, "photos.db"), existingPhotos)
+		if err != nil {
+			return fmt.Errorf("Failed to write database: %w", err)
+		}
+	} else {
+		manifestPath := filepath.Join(outDir, "manifest.json")
+		err = writeManifest(manifestPath, existingPhotos)
+		if err != nil {
+			return fmt.Errorf("Failed to write manifest: %w", err)
+		}
 	}
 
 	return nil
@@ -167,6 +186,45 @@ func writeManifest(path string, all []photos.Photo) error {
 		return err
 	}
 	return os.WriteFile(path, data, 0o644)
+}
+
+func readDatabase(path string) ([]photos.Photo, error) {
+	fmt.Println("Reading database from", path)
+	db, err := database.Open(path, "photos", nil)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	photoRepo := photos.NewPhotosRepository(db)
+
+	photos, err := photoRepo.ListAll(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	return photos, nil
+}
+
+func writeDatabase(path string, all []photos.Photo) error {
+	fmt.Println("Writing database to", path)
+	db, err := database.Open(path, "photos", nil)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	photoRepo := photos.NewPhotosRepository(db)
+
+	for _, photo := range all {
+		fmt.Println("Upserting photo", photo.Slug)
+		err := photoRepo.Upsert(context.TODO(), photo)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func populateExif(photo *photos.Photo, srcPath string) error {

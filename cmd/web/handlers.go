@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 
 	"murtari.me/web/internal/photos"
@@ -28,14 +26,7 @@ func isHTMXRequest(r *http.Request) bool {
 }
 
 func (app *application) loadManifest() error {
-	mp := filepath.Join(app.photoDir, "manifest.json")
-	data, err := os.ReadFile(mp)
-	if err != nil {
-		return err
-	}
-
-	var p []photos.Photo
-	err = json.Unmarshal(data, &p)
+	p, err := app.photoRepo.ListAll(context.TODO())
 	if err != nil {
 		return err
 	}
