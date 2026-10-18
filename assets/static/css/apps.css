@@ -8,9 +8,13 @@ main {
     flex-direction: column;
     justify-content: center;
 
-    > img {
+    picture {
         align-self: center;
 
+        display: block;
+    }
+
+    img {
         width: 256px;
     }
 
@@ -36,6 +40,11 @@ main {
     height: 400px;
     display: flex;
 
+    picture {
+        display: block;
+        height: 100%;
+    }
+
     img {
         height: 100%;
         width: auto;
@@ -55,6 +64,11 @@ main {
         height: auto;
         width: 100%;
         max-width: 420px;
+
+        picture {
+            width: 100%;
+            height: auto;
+        }
 
         img {
             height: auto;

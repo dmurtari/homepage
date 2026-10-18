@@ -8,7 +8,20 @@
 <div class="layout--column-center">
 	<main >
 		<section class="app">
-			<img src="{{ assetHash "/static/img/apps/manytime/icon.png" }}" alt="ManyTime Icon" height="256" width="256"/>
+			<picture>
+				<source
+					srcset="{{ assetHash "/static/img/apps/manytime/icon.webp" }}"
+					type="image/webp" />
+				<source
+					srcset="{{ assetHash "/static/img/apps/manytime/icon.png" }}"
+					type="image/png" />
+				<img
+					src="{{ assetHash "/static/img/apps/manytime/icon.png" }}"
+					alt="ManyTime Icon"
+					height="256"
+					width="256"
+				/>
+			</picture>
 			<h1>ManyTime</h1>
 			<p>
 				<b>ManyTime</b> is a macOS menu bar application that lets you visualize times in different timezones. Created because I wanted a simple way to figure out times, and nothing I could find quite did it in the way that I wanted.
@@ -24,36 +37,56 @@ brew install --cask dmurtari/tap/manytime
 			</h2>
 			<div class="app__screenshots">
 				<div class="screenshot">
-					<img
-						class="visible-dark-mode"
-						src="{{ assetHash "/static/img/apps/manytime/window-dark.png" }}"
-						alt="Dark Mode Screenshot"
-						height="858"
-						width="756"
-					/>
-					<img
-						class="visible-light-mode"
-						src="{{ assetHash "/static/img/apps/manytime/window-light.png" }}"
-						alt="Light Mode Screenshot"
-						height="858"
-						width="756"
-					/>
+					<picture>
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/window-dark.webp" }}"
+							media="(prefers-color-scheme: dark)"
+							type="image/webp" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/window-dark.png" }}"
+							media="(prefers-color-scheme: dark)"
+							type="image/png" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/window-light.webp" }}"
+							media="(prefers-color-scheme: light)"
+							type="image/webp" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/window-light.png" }}"
+							media="(prefers-color-scheme: light)"
+							type="image/png" />
+						<img
+							src="{{ assetHash "/static/img/apps/manytime/window-light.png" }}"
+							alt="ManyTime Main Window"
+							height="858"
+							width="756"
+						/>
+					</picture>
 				</div>
 				<div class="screenshot">
-					<img
-						class="visible-dark-mode"
-						src="{{ assetHash "/static/img/apps/manytime/settings-dark.png" }}"
-						alt="Dark Mode Settings Screenshot"
-						height="1564"
-						width="1096"
-					/>
-					<img
-						class="visible-light-mode"
-						src="{{ assetHash "/static/img/apps/manytime/settings-light.png" }}"
-						alt="Light Mode Settings Screenshot"
-						height="1564"
-						width="1096"
-					/>
+					<picture>
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/settings-dark.webp" }}"
+							media="(prefers-color-scheme: dark)"
+							type="image/webp" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/settings-dark.png" }}"
+							media="(prefers-color-scheme: dark)"
+							type="image/png" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/settings-light.webp" }}"
+							media="(prefers-color-scheme: light)"
+							type="image/webp" />
+						<source
+							srcset="{{ assetHash "/static/img/apps/manytime/settings-light.png" }}"
+							media="(prefers-color-scheme: light)"
+							type="image/png" />
+						<img
+							src="{{ assetHash "/static/img/apps/manytime/settings-light.png" }}"
+							alt="ManyTime Settings Window"
+							height="1564"
+							width="1096"
+						/>
+					</picture>
 				</div>
 				<!-- <div class="screenshot">
 				<video disablepictureinpicture height="858" width="756">
