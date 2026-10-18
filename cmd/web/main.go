@@ -24,6 +24,11 @@ func staticHandler() http.Handler {
 	}))
 }
 
+func robots(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	http.ServeFileFS(w, r, assets.StaticFiles, "robots.txt")
+}
+
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
@@ -56,6 +61,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", staticHandler())
+	mux.HandleFunc("GET /robots.txt", robots)
 	mux.HandleFunc("GET /{$}", app.home)
 	mux.HandleFunc("GET /apps", app.apps)
 	mux.HandleFunc("GET /photos", app.photos)
