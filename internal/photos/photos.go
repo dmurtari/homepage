@@ -20,5 +20,7 @@ type Photo struct {
 	Tags        []string  `json:"tags,omitempty"`
 }
 
-func (p Photo) ThumbPath() string { return MediaBaseURL + "/" + p.Slug + "/thumb.jpg" }
-func (p Photo) FullPath() string  { return MediaBaseURL + "/" + p.Slug + "/full.jpg" }
+func (p Photo) ThumbPath() string     { return MediaBaseURL + "/" + p.Slug + "/thumb.jpg" }
+func (p Photo) FullPath() string      { return MediaBaseURL + "/" + p.Slug + "/full.jpg" }
+func (p Photo) WebpThumbPath() string { return MediaBaseURL + "/" + p.Slug + "/thumb.webp" }
+func (p Photo) WebpFullPath() string  { return MediaBaseURL + "/" + p.Slug + "/full.webp" }

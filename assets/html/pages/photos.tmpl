@@ -58,10 +58,7 @@
 				hx-get="/photos?view=slideshow&index={{ $i }}"
 				hx-target="#photos-page"
 				hx-push-url="true">
-				<img
-					src="{{ $p.ThumbnailURL }}"
-					alt="{{ $p.Description }}"
-				/>
+				{{ template "photos:picture:thumb" $p }}
 			</a>
 		</div>
 	{{ end }}
@@ -77,11 +74,7 @@
 
 {{ define "photos:slideshow:subject" }}
 <div class="slideshow__subject" id="slideshow-subject">
-	<img
-		src="{{ .Current.FullSizeURL }}"
-		alt="{{ .Current.Description }}"
-		fetchpriority="high"
-	/>
+	{{ template "photos:picture:full" .Current }}
 </div>
 {{ end }}
 
@@ -138,7 +131,7 @@
 		hx-swap="outerHTML"
 		hx-push-url="true"
 		class="slideshow__nav-item {{ if eq $i $.Index }}active{{ end }}">
-		<img src="{{ $p.ThumbnailURL }}" alt="{{ $p.Description }}" />
+		{{ template "photos:picture:thumb" $p }}
 	</a>
 {{ end }}
 {{ end }}

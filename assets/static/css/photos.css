@@ -14,6 +14,10 @@ main {
     grid-template-rows: auto minmax(0, 1fr);
 }
 
+picture {
+    display: contents;
+}
+
 .toolbar {
     display: flex;
     padding-bottom: var(--size-m);

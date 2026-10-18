@@ -1,0 +1,26 @@
+{{ define "photos:picture:thumb" }}
+<picture>
+	<source
+		type="image/webp"
+		srcset="{{ .WebpThumbPath }}"
+	/>
+	<img
+		src="{{ .ThumbPath }}"
+		alt="{{ .Description }}"
+	/>
+</picture>
+{{ end }}
+
+{{ define "photos:picture:full" }}
+<picture>
+	<source
+		type="image/webp"
+		srcset="{{ .WebpFullPath }}"
+	/>
+	<img
+		src="{{ .FullPath }}"
+		alt="{{ .Description }}"
+		fetchpriority="high"
+	/>
+</picture>
+{{ end }}
