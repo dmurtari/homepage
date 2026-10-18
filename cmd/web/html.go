@@ -8,8 +8,10 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
-	"os"
+	"strings"
 	"time"
+
+	"murtari.me/web/assets"
 )
 
 type htmlRenderer struct {
@@ -17,14 +19,21 @@ type htmlRenderer struct {
 	sharedTemplates *template.Template
 }
 
-func hashPath(path string) string {
-	data, _ := os.ReadFile(path)
-	sum := sha256.Sum256(data)
-	return hex.EncodeToString(sum[:])[:8]
-}
+func assetHash(url string) (string, error) {
+	const prefix = "/static/"
+	if !strings.HasPrefix(url, prefix) {
+		return "", fmt.Errorf("asset %q should start with %q", url, prefix)
+	}
 
-func assetHash(path string) string {
-	return fmt.Sprintf("%s?v=%s", path, hashPath(path))
+	name := strings.TrimPrefix(url, prefix)
+	data, err := fs.ReadFile(assets.StaticFiles, name)
+	if err != nil {
+		return "", fmt.Errorf("read asset error: %w", err)
+	}
+
+	sum := sha256.Sum256(data)
+	version := hex.EncodeToString(sum[:])[:8]
+	return fmt.Sprintf("%s?v=%s", url, version), nil
 }
 
 func newHTMLRenderer(templateFS fs.FS, sharedTemplateFiles ...string) (*htmlRenderer, error) {
