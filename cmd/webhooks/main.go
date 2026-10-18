@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"embed"
 	"log/slog"
 	"net/http"
 	"os"
@@ -37,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := database.Open(dbPath, logger)
+	db, err := database.Open(dbPath, "activities", logger)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
