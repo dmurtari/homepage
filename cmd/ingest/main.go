@@ -25,16 +25,15 @@ const (
 func main() {
 	srcDir := flag.String("src", "", "Source images")
 	outDir := flag.String("out", "", "Output images")
-	overwrite := flag.Bool("overwrite", false, "Overwrite existing images")
 
 	flag.Parse()
 
-	if err := run(*srcDir, *outDir, *overwrite); err != nil {
+	if err := run(*srcDir, *outDir); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(srcDir, outDir string, overwrite bool) error {
+func run(srcDir, outDir string) error {
 	fmt.Println("Reading from:", srcDir)
 
 	files, err := os.ReadDir(srcDir)
@@ -63,15 +62,11 @@ func run(srcDir, outDir string, overwrite bool) error {
 
 	for _, file := range files {
 		slug := generateSlug(file.Name())
-		overwrote := false
+		hasExisting := false
 
 		if existingSlugs[slug] {
-			fmt.Println("Skipping existing file:", file.Name())
-			overwrote = true
-
-			if !overwrite {
-				continue
-			}
+			fmt.Println("Has existing file:", file.Name())
+			hasExisting = true
 		}
 
 		err = os.MkdirAll(outDir, os.ModePerm)
@@ -111,7 +106,7 @@ func run(srcDir, outDir string, overwrite bool) error {
 			return fmt.Errorf("Failed to populate exif: %w", err)
 		}
 
-		if overwrote {
+		if hasExisting {
 			for i, p := range existingPhotos {
 				if p.Slug == slug {
 					existingPhotos[i] = photo
