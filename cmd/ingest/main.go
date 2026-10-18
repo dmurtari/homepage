@@ -20,7 +20,13 @@ const (
 	thumbSize   = 400
 	fullSize    = 2000
 	jpegQuality = 90
+	webpQuality = 90
 )
+
+type encodedImage struct {
+	JPEG, WebP    []byte
+	Width, Height int
+}
 
 func main() {
 	srcDir := flag.String("src", "", "Source images")
@@ -80,25 +86,29 @@ func run(srcDir, outDir string) error {
 		}
 
 		fullPath := filepath.Join(srcDir, file.Name())
-		thumb, tw, th, err := generateImage(fullPath, thumbSize)
+		thumb, err := generateImage(fullPath, thumbSize)
 		if err != nil {
 			return fmt.Errorf("Failed to create thumbnail: %w", err)
 		}
-		err = os.WriteFile(filepath.Join(outDir, slug, "thumb.jpg"), thumb, 0644)
+		if err := writeImages(filepath.Join(outDir, slug), "thumb", thumb); err != nil {
+			return err
+		}
 
-		full, fw, fh, err := generateImage(fullPath, fullSize)
+		full, err := generateImage(fullPath, fullSize)
 		if err != nil {
-			return fmt.Errorf("Failed to create thumbnail: %w", err)
+			return fmt.Errorf("Failed to create full image: %w", err)
 		}
-		err = os.WriteFile(filepath.Join(outDir, slug, "full.jpg"), full, 0644)
+		if err := writeImages(filepath.Join(outDir, slug), "full", full); err != nil {
+			return err
+		}
 
 		photo := photos.Photo{
 			Slug:        slug,
 			Original:    file.Name(),
-			ThumbWidth:  tw,
-			ThumbHeight: th,
-			FullWidth:   fw,
-			FullHeight:  fh,
+			ThumbWidth:  thumb.Width,
+			ThumbHeight: thumb.Height,
+			FullWidth:   full.Width,
+			FullHeight:  full.Height,
 		}
 
 		err = populateExif(&photo, fullPath)
@@ -134,18 +144,47 @@ func generateSlug(name string) string {
 	return name
 }
 
-func generateImage(srcPath string, size int) ([]byte, int, int, error) {
-	img, err := vips.NewThumbnailFromFile(srcPath, size, size, vips.InterestingNone)
+func generateImage(srcPath string, size int) (*encodedImage, error) {
+	jpgImg, err := vips.NewThumbnailFromFile(srcPath, size, size, vips.InterestingNone)
 	if err != nil {
-		return nil, 0, 0, err
+		return nil, fmt.Errorf("thumbnail (jpeg): %w", err)
+	}
+	defer jpgImg.Close()
+
+	jpg, _, err := jpgImg.ExportJpeg(&vips.JpegExportParams{Quality: jpegQuality, Interlace: true})
+	if err != nil {
+		return nil, fmt.Errorf("jpeg export: %w", err)
 	}
 
-	buf, _, err := img.ExportJpeg(&vips.JpegExportParams{Quality: jpegQuality, Interlace: true})
+	webpImg, err := vips.NewThumbnailFromFile(srcPath, size, size, vips.InterestingNone)
 	if err != nil {
-		return nil, 0, 0, err
+		return nil, fmt.Errorf("thumbnail (webp): %w", err)
+	}
+	defer webpImg.Close()
+
+	webp, _, err := webpImg.ExportWebp(&vips.WebpExportParams{
+		Quality:         webpQuality,
+		ReductionEffort: 4,
+		StripMetadata:   true,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("webp export: %w", err)
 	}
 
-	return buf, img.Width(), img.Height(), nil
+	return &encodedImage{
+		JPEG:   jpg,
+		WebP:   webp,
+		Width:  jpgImg.Width(),
+		Height: jpgImg.Height(),
+	}, nil
+}
+
+func writeImages(dir, name string, img *encodedImage) error {
+	if err := os.WriteFile(filepath.Join(dir, name+".jpg"), img.JPEG, 0644); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, name+".webp"), img.WebP, 0644)
 }
 
 func readDatabase(photoRepo *photos.PhotoRepository) ([]photos.Photo, error) {
