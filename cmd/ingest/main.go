@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,17 +25,16 @@ const (
 func main() {
 	srcDir := flag.String("src", "", "Source images")
 	outDir := flag.String("out", "", "Output images")
-	useDB := flag.Bool("db", false, "Write to database")
 	overwrite := flag.Bool("overwrite", false, "Overwrite existing images")
 
 	flag.Parse()
 
-	if err := run(*srcDir, *outDir, *overwrite, *useDB); err != nil {
+	if err := run(*srcDir, *outDir, *overwrite); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(srcDir, outDir string, overwrite bool, useDB bool) error {
+func run(srcDir, outDir string, overwrite bool) error {
 	fmt.Println("Reading from:", srcDir)
 
 	files, err := os.ReadDir(srcDir)
@@ -45,18 +44,16 @@ func run(srcDir, outDir string, overwrite bool, useDB bool) error {
 
 	var existingPhotos []photos.Photo
 
-	if useDB {
-		dbPath := filepath.Join(outDir, "photos.db")
-		existingPhotos, err = readDatabase(dbPath)
-		if err != nil {
-			return fmt.Errorf("Failed to read from database: %w", err)
-		}
-	} else {
-		manifestPath := filepath.Join(outDir, "manifest.json")
-		existingPhotos, err = parseManifest(manifestPath)
-		if err != nil {
-			return fmt.Errorf("Error reading manifest: %w", err)
-		}
+	dbPath := filepath.Join(outDir, "photos.db")
+	db, err := database.Open(dbPath, "photos", slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	if err != nil {
+		return fmt.Errorf("Failed to open database: %w", err)
+	}
+
+	photoRepo := photos.NewPhotosRepository(db)
+	existingPhotos, err = readDatabase(photoRepo)
+	if err != nil {
+		return fmt.Errorf("Failed to read from database: %w", err)
 	}
 
 	existingSlugs := make(map[string]bool)
@@ -126,17 +123,9 @@ func run(srcDir, outDir string, overwrite bool, useDB bool) error {
 		}
 	}
 
-	if useDB {
-		err = writeDatabase(filepath.Join(outDir, "photos.db"), existingPhotos)
-		if err != nil {
-			return fmt.Errorf("Failed to write database: %w", err)
-		}
-	} else {
-		manifestPath := filepath.Join(outDir, "manifest.json")
-		err = writeManifest(manifestPath, existingPhotos)
-		if err != nil {
-			return fmt.Errorf("Failed to write manifest: %w", err)
-		}
+	err = writeDatabase(photoRepo, existingPhotos)
+	if err != nil {
+		return fmt.Errorf("Failed to write database: %w", err)
 	}
 
 	return nil
@@ -164,40 +153,7 @@ func generateImage(srcPath string, size int) ([]byte, int, int, error) {
 	return buf, img.Width(), img.Height(), nil
 }
 
-func parseManifest(manifestPath string) ([]photos.Photo, error) {
-	data, err := os.ReadFile(manifestPath)
-	if err != nil {
-		return nil, err
-	}
-
-	var photos []photos.Photo
-	err = json.Unmarshal(data, &photos)
-	if err != nil {
-		return nil, err
-	}
-
-	return photos, nil
-}
-
-func writeManifest(path string, all []photos.Photo) error {
-	fmt.Println("Writing manifest to", path)
-	data, err := json.MarshalIndent(all, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(path, data, 0o644)
-}
-
-func readDatabase(path string) ([]photos.Photo, error) {
-	fmt.Println("Reading database from", path)
-	db, err := database.Open(path, "photos", nil)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	photoRepo := photos.NewPhotosRepository(db)
-
+func readDatabase(photoRepo *photos.PhotoRepository) ([]photos.Photo, error) {
 	photos, err := photoRepo.ListAll(context.TODO())
 	if err != nil {
 		return nil, err
@@ -206,16 +162,7 @@ func readDatabase(path string) ([]photos.Photo, error) {
 	return photos, nil
 }
 
-func writeDatabase(path string, all []photos.Photo) error {
-	fmt.Println("Writing database to", path)
-	db, err := database.Open(path, "photos", nil)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	photoRepo := photos.NewPhotosRepository(db)
-
+func writeDatabase(photoRepo *photos.PhotoRepository, all []photos.Photo) error {
 	for _, photo := range all {
 		fmt.Println("Upserting photo", photo.Slug)
 		err := photoRepo.Upsert(context.TODO(), photo)
@@ -240,6 +187,12 @@ func populateExif(photo *photos.Photo, srcPath string) error {
 	if err != nil {
 		fmt.Println("No exif to parse", err)
 		return nil
+	}
+
+	if date, err := x.DateTime(); err == nil {
+		layout := "2006-01-02T15:04:05"
+		photo.Date = date.Format(layout)
+		fmt.Println("Parsed date:", photo.Date)
 	}
 
 	if tag, err := x.Get(exif.Model); err == nil {

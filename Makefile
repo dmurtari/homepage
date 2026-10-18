@@ -5,7 +5,7 @@ include .env
 ingest-sync-all: ingest sync-images sync-manifest
 
 ingest:
-	go run ./cmd/ingest -src $(SOURCE_DIR) -out $(OUT_DIR) -db
+	go run ./cmd/ingest -src $(SOURCE_DIR) -out $(OUT_DIR)
 
 sync-images:
 	rclone sync $(OUT_DIR) $(R2_REMOTE) --exclude "manifest.json" --exclude "photos.db" \

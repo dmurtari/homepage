@@ -57,6 +57,8 @@ func (m *Migrator) Migrate(namespace string) error {
 		return err
 	}
 
+	m.logger.Info("migrating", "namespace", namespace, "from_version", version, "to_version", len(entries))
+
 	for i := version; i < len(entries); i++ {
 		name := entries[i].Name()
 
@@ -84,6 +86,8 @@ func (m *Migrator) Migrate(namespace string) error {
 			return fmt.Errorf("failed to commit migration %s.%s: %w", namespace, name, err)
 		}
 	}
+
+	m.logger.Info("migration completed", "namespace", namespace, "to_version", len(entries))
 
 	return nil
 }

@@ -54,7 +54,7 @@ func main() {
 		photoDbPath = "./tmp/out/photos.db"
 	}
 
-	photoDb, err := database.Open(photoDbPath, "photos", nil)
+	photoDb, err := database.Open(photoDbPath, "photos", logger)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
