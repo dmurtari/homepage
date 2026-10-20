@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"log/slog"
 	"os"
@@ -28,107 +29,116 @@ type encodedImage struct {
 	Width, Height int
 }
 
+type PhotoIngester struct {
+	srcDir    string
+	outDir    string
+	photoRepo *photos.PhotoRepository
+	photos    []photos.Photo
+}
+
+func NewPhotoIngester(srcDir, outDir string, photoRepo *photos.PhotoRepository) *PhotoIngester {
+	return &PhotoIngester{
+		srcDir:    srcDir,
+		outDir:    outDir,
+		photoRepo: photoRepo,
+		photos:    []photos.Photo{},
+	}
+}
+
 func main() {
 	srcDir := flag.String("src", "", "Source images")
 	outDir := flag.String("out", "", "Output images")
 
 	flag.Parse()
 
-	if err := run(*srcDir, *outDir); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func run(srcDir, outDir string) error {
-	fmt.Println("Reading from:", srcDir)
-
-	files, err := os.ReadDir(srcDir)
-	if err != nil {
-		return fmt.Errorf("Failed to open src: %w", err)
-	}
-
-	var existingPhotos []photos.Photo
-
-	dbPath := filepath.Join(outDir, "photos.db")
+	dbPath := filepath.Join(*outDir, "photos.db")
 	db, err := database.Open(dbPath, "photos", slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	if err != nil {
-		return fmt.Errorf("Failed to open database: %w", err)
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	err = os.MkdirAll(*outDir, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	photoRepo := photos.NewPhotosRepository(db)
-	existingPhotos, err = readDatabase(photoRepo)
+	pi := NewPhotoIngester(*srcDir, *outDir, photoRepo)
+
+	err = pi.Ingest()
 	if err != nil {
-		return fmt.Errorf("Failed to read from database: %w", err)
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
-	existingSlugs := make(map[string]bool)
-	for _, photo := range existingPhotos {
-		existingSlugs[photo.Slug] = true
+	err = pi.WriteDatabase()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+}
+
+func (p *PhotoIngester) Ingest() error {
+	err := filepath.WalkDir(p.srcDir, p.visit)
+	if err != nil {
+		log.Fatal(err)
+		return err
 	}
 
-	for _, file := range files {
-		slug := generateSlug(file.Name())
-		hasExisting := false
+	return nil
+}
 
-		if existingSlugs[slug] {
-			fmt.Println("Has existing file:", file.Name())
-			hasExisting = true
-		}
-
-		err = os.MkdirAll(outDir, os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("Failed to open output: %w", err)
-		}
-
-		err = os.MkdirAll(filepath.Join(outDir, slug), os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("Failed to generate slug directory: %w", err)
-		}
-
-		fullPath := filepath.Join(srcDir, file.Name())
-		thumb, err := generateImage(fullPath, thumbSize)
-		if err != nil {
-			return fmt.Errorf("Failed to create thumbnail: %w", err)
-		}
-		if err := writeImages(filepath.Join(outDir, slug), "thumb", thumb); err != nil {
-			return err
-		}
-
-		full, err := generateImage(fullPath, fullSize)
-		if err != nil {
-			return fmt.Errorf("Failed to create full image: %w", err)
-		}
-		if err := writeImages(filepath.Join(outDir, slug), "full", full); err != nil {
-			return err
-		}
-
-		photo := photos.Photo{
-			Slug:        slug,
-			Original:    file.Name(),
-			ThumbWidth:  thumb.Width,
-			ThumbHeight: thumb.Height,
-			FullWidth:   full.Width,
-			FullHeight:  full.Height,
-		}
-
-		err = populateExif(&photo, fullPath)
-		if err != nil {
-			return fmt.Errorf("Failed to populate exif: %w", err)
-		}
-
-		if hasExisting {
-			for i, p := range existingPhotos {
-				if p.Slug == slug {
-					existingPhotos[i] = photo
-					break
-				}
-			}
-		} else {
-			existingPhotos = append(existingPhotos, photo)
-		}
+func (p *PhotoIngester) visit(path string, di fs.DirEntry, err error) error {
+	if di.IsDir() {
+		return nil
 	}
 
-	err = writeDatabase(photoRepo, existingPhotos)
+	slug := generateSlug(di.Name())
+	// album := filepath.Base(filepath.Dir(path))
+
+	err = os.MkdirAll(filepath.Join(p.outDir, slug), os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("Failed to generate slug directory: %w", err)
+	}
+
+	thumb, err := generateImage(path, thumbSize)
+	if err != nil {
+		return fmt.Errorf("Failed to create thumbnail: %w", err)
+	}
+	if err := writeImages(filepath.Join(p.outDir, slug), "thumb", thumb); err != nil {
+		return err
+	}
+
+	full, err := generateImage(path, fullSize)
+	if err != nil {
+		return fmt.Errorf("Failed to create full image: %w", err)
+	}
+	if err := writeImages(filepath.Join(p.outDir, slug), "full", full); err != nil {
+		return err
+	}
+
+	photo := photos.Photo{
+		Slug:        slug,
+		Original:    di.Name(),
+		ThumbWidth:  thumb.Width,
+		ThumbHeight: thumb.Height,
+		FullWidth:   full.Width,
+		FullHeight:  full.Height,
+	}
+
+	err = populateExif(&photo, path)
+	if err != nil {
+		return fmt.Errorf("Failed to populate exif: %w", err)
+	}
+
+	p.photos = append(p.photos, photo)
+	return nil
+}
+
+func (p *PhotoIngester) WriteDatabase() error {
+	err := writeDatabase(p.photoRepo, p.photos)
 	if err != nil {
 		return fmt.Errorf("Failed to write database: %w", err)
 	}
@@ -145,6 +155,8 @@ func generateSlug(name string) string {
 }
 
 func generateImage(srcPath string, size int) (*encodedImage, error) {
+	vips.LoggingSettings(nil, vips.LogLevelWarning)
+
 	jpgImg, err := vips.NewThumbnailFromFile(srcPath, size, size, vips.InterestingNone)
 	if err != nil {
 		return nil, fmt.Errorf("thumbnail (jpeg): %w", err)
