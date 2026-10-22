@@ -34,6 +34,7 @@ type PhotoIngester struct {
 	outDir    string
 	photoRepo *photos.PhotoRepository
 	photos    []photos.Photo
+	albums    []photos.Album
 }
 
 func NewPhotoIngester(srcDir, outDir string, photoRepo *photos.PhotoRepository) *PhotoIngester {
@@ -42,6 +43,7 @@ func NewPhotoIngester(srcDir, outDir string, photoRepo *photos.PhotoRepository) 
 		outDir:    outDir,
 		photoRepo: photoRepo,
 		photos:    []photos.Photo{},
+		albums:    []photos.Album{},
 	}
 }
 
@@ -92,11 +94,20 @@ func (p *PhotoIngester) Ingest() error {
 
 func (p *PhotoIngester) visit(path string, di fs.DirEntry, err error) error {
 	if di.IsDir() {
+		fmt.Println("Skipping directory", path)
+		return nil
+	}
+
+	suffix := strings.ToLower(filepath.Ext(di.Name()))
+	if suffix != ".jpg" && suffix != ".jpeg" {
+		fmt.Println("Skipping non-image file", path)
 		return nil
 	}
 
 	slug := generateSlug(di.Name())
-	// album := filepath.Base(filepath.Dir(path))
+	aName := filepath.Base(filepath.Dir(path))
+
+	fmt.Println("Processing", slug, "in album", aName)
 
 	err = os.MkdirAll(filepath.Join(p.outDir, slug), os.ModePerm)
 	if err != nil {
@@ -119,6 +130,7 @@ func (p *PhotoIngester) visit(path string, di fs.DirEntry, err error) error {
 		return err
 	}
 
+	aId := strings.ToLower(strings.Join(strings.Fields(aName), "-"))
 	photo := photos.Photo{
 		Slug:        slug,
 		Original:    di.Name(),
@@ -126,6 +138,12 @@ func (p *PhotoIngester) visit(path string, di fs.DirEntry, err error) error {
 		ThumbHeight: thumb.Height,
 		FullWidth:   full.Width,
 		FullHeight:  full.Height,
+		AlbumID:     aId,
+	}
+
+	album := photos.Album{
+		Name: aName,
+		ID:   aId,
 	}
 
 	err = populateExif(&photo, path)
@@ -134,13 +152,19 @@ func (p *PhotoIngester) visit(path string, di fs.DirEntry, err error) error {
 	}
 
 	p.photos = append(p.photos, photo)
+	p.albums = append(p.albums, album)
 	return nil
 }
 
 func (p *PhotoIngester) WriteDatabase() error {
-	err := writeDatabase(p.photoRepo, p.photos)
+	err := writeAlbums(p.photoRepo, p.albums)
 	if err != nil {
-		return fmt.Errorf("Failed to write database: %w", err)
+		return fmt.Errorf("Failed to write albums: %w", err)
+	}
+
+	err = writePhotos(p.photoRepo, p.photos)
+	if err != nil {
+		return fmt.Errorf("Failed to write photos: %w", err)
 	}
 
 	return nil
@@ -208,9 +232,19 @@ func readDatabase(photoRepo *photos.PhotoRepository) ([]photos.Photo, error) {
 	return photos, nil
 }
 
-func writeDatabase(photoRepo *photos.PhotoRepository, all []photos.Photo) error {
+func writeAlbums(photoRepo *photos.PhotoRepository, all []photos.Album) error {
+	for _, album := range all {
+		err := photoRepo.UpsertAlbum(context.TODO(), album)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func writePhotos(photoRepo *photos.PhotoRepository, all []photos.Photo) error {
 	for _, photo := range all {
-		fmt.Println("Upserting photo", photo.Slug)
 		err := photoRepo.Upsert(context.TODO(), photo)
 		if err != nil {
 			return err

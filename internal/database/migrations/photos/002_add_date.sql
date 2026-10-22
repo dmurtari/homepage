@@ -1,1 +1,0 @@
-ALTER TABLE photos ADD COLUMN date TEXT;

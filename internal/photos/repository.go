@@ -10,7 +10,7 @@ var (
 SELECT
 	slug,
 	original,
-	COALESCE(date, '') AS date,
+	date,
 	thumb_width,
 	thumb_height,
 	full_width,
@@ -22,7 +22,8 @@ SELECT
 	iso,
  	shutter,
 	gps_lat,
- 	gps_lon
+ 	gps_lon,
+	COALESCE(album_id, '') AS album_id
 FROM photos
 ORDER BY slug`
 
@@ -42,9 +43,10 @@ INSERT INTO photos (
 	iso,
 	shutter,
 	gps_lat,
-	gps_lon
+	gps_lon,
+	album_id
 ) VALUES (
-	$1, $2, NULLIF($3, ''), $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+	$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NULLIF($16, '')
 )
 ON CONFLICT (slug) DO UPDATE SET
 	original = EXCLUDED.original,
@@ -60,7 +62,14 @@ ON CONFLICT (slug) DO UPDATE SET
 	iso = EXCLUDED.iso,
 	shutter = EXCLUDED.shutter,
 	gps_lat = EXCLUDED.gps_lat,
-	gps_lon = EXCLUDED.gps_lon`
+	gps_lon = EXCLUDED.gps_lon,
+	album_id = COALESCE(EXCLUDED.album_id, photos.album_id)`
+
+	upsertAlbumQuery = `
+INSERT INTO albums (id, name, description) VALUES ($1, $2, $3)
+ON CONFLICT (id) DO UPDATE SET
+	name = EXCLUDED.name,
+	description = COALESCE(NULLIF(EXCLUDED.description, ''), albums.description)`
 )
 
 type PhotoRepository struct {
@@ -86,7 +95,7 @@ func (r *PhotoRepository) ListAll(ctx context.Context) ([]Photo, error) {
 		if err := rows.Scan(
 			&p.Slug, &p.Original, &p.Date, &p.ThumbWidth, &p.ThumbHeight,
 			&p.FullWidth, &p.FullHeight, &p.Description, &p.Location,
-			&p.Camera, &p.Aperture, &p.ISO, &p.Shutter, &lat, &lon,
+			&p.Camera, &p.Aperture, &p.ISO, &p.Shutter, &lat, &lon, &p.AlbumID,
 		); err != nil {
 			return nil, err
 		}
@@ -115,8 +124,13 @@ func (r *PhotoRepository) Upsert(ctx context.Context, p Photo) error {
 	_, err := r.db.ExecContext(ctx, upsertQuery,
 		p.Slug, p.Original, p.Date, p.ThumbWidth, p.ThumbHeight,
 		p.FullWidth, p.FullHeight, p.Description, p.Location,
-		p.Camera, p.Aperture, p.ISO, p.Shutter, lat, lon,
+		p.Camera, p.Aperture, p.ISO, p.Shutter, lat, lon, p.AlbumID,
 	)
 
+	return err
+}
+
+func (r *PhotoRepository) UpsertAlbum(ctx context.Context, a Album) error {
+	_, err := r.db.ExecContext(ctx, upsertAlbumQuery, a.ID, a.Name, a.Description)
 	return err
 }

@@ -18,9 +18,16 @@ type Photo struct {
 	Shutter     string    `json:"shutter,omitempty"`
 	GPS         []float64 `json:"gps,omitempty"`
 	Tags        []string  `json:"tags,omitempty"`
+	AlbumID     string    `json:"album_id,omitempty"`
 }
 
 func (p Photo) ThumbPath() string     { return MediaBaseURL + "/" + p.Slug + "/thumb.jpg" }
 func (p Photo) FullPath() string      { return MediaBaseURL + "/" + p.Slug + "/full.jpg" }
 func (p Photo) WebpThumbPath() string { return MediaBaseURL + "/" + p.Slug + "/thumb.webp" }
 func (p Photo) WebpFullPath() string  { return MediaBaseURL + "/" + p.Slug + "/full.webp" }
+
+type Album struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
