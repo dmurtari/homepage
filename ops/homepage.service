@@ -11,7 +11,7 @@ StateDirectory=data
 Environment=PHOTO_DIR=/var/www/photos
 Environment=MEDIA_BASE_URL=https://media.murtari.me
 Environment=ACTIVITIES_DB_PATH=/var/lib/data/activities.db
-Environment=PHOTOS_DB_PATH=/var/lib/data/photos.db
+Environment=PHOTO_DB_PATH=/var/lib/data/photos.db
 Restart=on-failure
 RestartSec=3
 
