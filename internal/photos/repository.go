@@ -70,6 +70,9 @@ INSERT INTO albums (id, name, description) VALUES ($1, $2, $3)
 ON CONFLICT (id) DO UPDATE SET
 	name = EXCLUDED.name,
 	description = COALESCE(NULLIF(EXCLUDED.description, ''), albums.description)`
+
+	getAlbumsQuery = `
+SELECT id, name, description FROM albums ORDER BY name`
 )
 
 type PhotoRepository struct {
@@ -133,4 +136,27 @@ func (r *PhotoRepository) Upsert(ctx context.Context, p Photo) error {
 func (r *PhotoRepository) UpsertAlbum(ctx context.Context, a Album) error {
 	_, err := r.db.ExecContext(ctx, upsertAlbumQuery, a.ID, a.Name, a.Description)
 	return err
+}
+
+func (r *PhotoRepository) ListAlbums(ctx context.Context) ([]Album, error) {
+	rows, err := r.db.QueryContext(ctx, getAlbumsQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	albums := []Album{}
+	for rows.Next() {
+		var a Album
+		if err := rows.Scan(&a.ID, &a.Name, &a.Description); err != nil {
+			return nil, err
+		}
+		albums = append(albums, a)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return albums, nil
 }

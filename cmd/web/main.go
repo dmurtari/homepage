@@ -15,7 +15,8 @@ type application struct {
 	html      *htmlRenderer
 	photoDir  string
 	photoRepo *photos.PhotoRepository
-	manifest  []photos.Photo
+	dbPhotos  []photos.Photo
+	dbAlbums  []photos.Album
 }
 
 func staticHandler() http.Handler {

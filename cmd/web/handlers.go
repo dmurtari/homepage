@@ -31,7 +31,14 @@ func (app *application) loadManifest() error {
 		return err
 	}
 
-	app.manifest = p
+	a, err := app.photoRepo.ListAlbums(context.TODO())
+	if err != nil {
+		return err
+	}
+
+	app.dbPhotos = p
+	app.dbAlbums = a
+
 	return nil
 }
 
@@ -52,7 +59,7 @@ func (app *application) apps(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) photos(w http.ResponseWriter, r *http.Request) {
-	photos := app.manifest
+	photos := app.dbPhotos
 
 	v := make([]photoView, len(photos))
 	for i, p := range photos {
