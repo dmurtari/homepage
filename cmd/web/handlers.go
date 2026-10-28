@@ -14,8 +14,14 @@ type photoView struct {
 	FullSizeURL  string
 }
 
+type albumView struct {
+	photos.Album
+	photos []photoView
+}
+
 type photosPage struct {
 	Photos  []photoView
+	Albums  []albumView
 	View    string
 	Current photoView
 	Index   int
@@ -60,26 +66,44 @@ func (app *application) apps(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 	photos := app.dbPhotos
+	albums := app.dbAlbums
 
-	v := make([]photoView, len(photos))
+	pv := make([]photoView, len(photos))
 	for i, p := range photos {
-		v[i] = photoView{
+		pv[i] = photoView{
 			Photo:        p,
 			ThumbnailURL: p.ThumbPath(),
 			FullSizeURL:  p.FullPath(),
 		}
 	}
 
-	p := photosPage{Photos: v, View: "gallery"}
-	if r.URL.Query().Get("view") == "slideshow" && len(v) > 0 {
+	av := make([]albumView, len(albums))
+	for i, a := range albums {
+		av[i] = albumView{
+			Album:  a,
+			photos: []photoView{},
+		}
+	}
+
+	for i, p := range pv {
+		for j, a := range av {
+			if p.AlbumID == a.ID {
+				av[j].photos = append(av[j].photos, pv[i])
+				break
+			}
+		}
+	}
+
+	p := photosPage{Photos: pv, Albums: av, View: "gallery"}
+	if r.URL.Query().Get("view") == "slideshow" && len(pv) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
-		if err != nil || idx < 0 || idx >= len(v) {
+		if err != nil || idx < 0 || idx >= len(pv) {
 			idx = 0
 		}
 
 		p.Index = idx
 		p.View = "slideshow"
-		p.Current = v[idx]
+		p.Current = pv[idx]
 	}
 
 	t := "base"
