@@ -7,13 +7,16 @@
 {{ end }}
 
 {{ define "page:content" }}
-<main class="layout--column-center--wide" id="photos-page">
+<main class="layout--column-center" id="photos-page">
 	{{ template "photos:page" . }}
 </main>
 {{ end }}
 
 {{ define "photos:page" }}
-{{ template "photos:toolbar" . }}
+{{ if ne .View "albums" }}
+	{{ template "photos:toolbar" . }}
+{{ end }}
+
 {{ if eq .View "slideshow" }}
 	{{ template "photos:slideshow" . }}
 {{ else if eq .View "albums" }}
@@ -48,17 +51,6 @@
 			>
 				Slideshow
 			</a>
-			<!-- <a
-				href="/photos?view=albums"
-				aria-current="page"
-				{{ if eq .View "albums" }}disabled{{ end }}
-				hx-get="/photos?view=albums"
-				hx-target="#photos-page"
-				hx-push-url="true"
-				class="{{ if eq .View "albums" }}active{{ end }}"
-			>
-				Albums
-			</a> -->
 		</div>
 	</div>
 </div>

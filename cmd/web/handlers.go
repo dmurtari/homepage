@@ -94,7 +94,8 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	p := photosPage{Photos: pv, Albums: av, View: "gallery"}
+	p := photosPage{Photos: pv, Albums: av, View: "albums"}
+
 	if r.URL.Query().Get("view") == "slideshow" && len(pv) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
 		if err != nil || idx < 0 || idx >= len(pv) {
@@ -106,8 +107,18 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		p.Current = pv[idx]
 	}
 
-	if r.URL.Query().Get("view") == "albums" && len(av) > 0 {
-		p.View = "albums"
+	if r.URL.Query().Get("view") == "gallery" && len(pv) > 0 {
+		p.View = "gallery"
+	}
+
+	if r.URL.Query().Get("album") != "" {
+		a := r.URL.Query().Get("album")
+		for _, album := range av {
+			if album.Name == a {
+				p.Photos = album.Photos
+				break
+			}
+		}
 	}
 
 	t := "base"
