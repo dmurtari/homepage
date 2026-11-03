@@ -13,7 +13,7 @@
 {{ define "albums" }}
 <section class="albums">
 	{{ range $i, $a := .Albums }}
-		<a href="/photos/{{ $a.ID }}?view=gallery">
+		<a href="/photos/{{ $a.ID }}?view=slideshow">
 			{{ template "albums:cover" $a }}
 		</a>
 	{{ end }}

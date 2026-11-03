@@ -27,7 +27,7 @@
 {{ if eq .View "slideshow" }}
 	{{ template "photos:slideshow" . }}
 {{ else }}
-	{{ template "photos:gallery" .Album.Photos }}
+	{{ template "photos:gallery" . }}
 {{ end }}
 {{ end }}
 
@@ -61,11 +61,11 @@
 
 {{ define "photos:gallery" }}
 <section class="gallery">
-	{{ range $i, $p := . }}
+	{{ range $i, $p := .Album.Photos }}
 		<div class="gallery__item">
 			<a
-				href="/photos?view=slideshow&index={{ $i }}"
-				hx-get="/photos?view=slideshow&index={{ $i }}"
+				href="/photos/{{ $.Album.ID }}?view=slideshow&index={{ $i }}"
+				hx-get="/photos/{{ $.Album.ID }}?view=slideshow&index={{ $i }}"
 				hx-target="#photos-page"
 				hx-push-url="true"
 			>
@@ -136,8 +136,8 @@
 
 {{ define "photos:slideshow:nav-items" }}
 {{ range $i, $p := .Album.Photos }}
-	<a href="/photos?view=slideshow&index={{ $i }}"
-		hx-get="/photos?view=slideshow&index={{ $i }}"
+	<a href="/photos/{{ $.Album.ID }}?view=slideshow&index={{ $i }}"
+		hx-get="/photos/{{ $.Album.ID }}?view=slideshow&index={{ $i }}"
 		hx-target="#slideshow-subject"
 		hx-swap="outerHTML"
 		hx-push-url="true"

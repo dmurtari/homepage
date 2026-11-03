@@ -112,16 +112,6 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 
 	aId := r.PathValue("album")
 
-	// TODO: Update this to be a query to get only photos for album
-	pv := make([]photoView, len(photos))
-	for i, p := range photos {
-		pv[i] = photoView{
-			Photo:        p,
-			ThumbnailURL: p.ThumbPath(),
-			FullSizeURL:  p.FullPath(),
-		}
-	}
-
 	var av albumView
 	for _, a := range albums {
 		if a.ID == aId {
@@ -139,6 +129,16 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Update this to be a query to get only photos for album
+	pv := make([]photoView, len(photos))
+	for i, p := range photos {
+		pv[i] = photoView{
+			Photo:        p,
+			ThumbnailURL: p.ThumbPath(),
+			FullSizeURL:  p.FullPath(),
+		}
+	}
+
 	for i, p := range pv {
 		if p.AlbumID == av.ID {
 			av.Photos = append(av.Photos, pv[i])
@@ -146,16 +146,15 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := photosPage{Album: av, View: "gallery"}
-
 	if r.URL.Query().Get("view") == "slideshow" && len(pv) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
-		if err != nil || idx < 0 || idx >= len(pv) {
+		if err != nil || idx < 0 || idx >= len(av.Photos) {
 			idx = 0
 		}
 
 		p.Index = idx
 		p.View = "slideshow"
-		p.Current = pv[idx]
+		p.Current = av.Photos[idx]
 	}
 
 	t := "base"
