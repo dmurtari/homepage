@@ -87,6 +87,11 @@ picture {
         width: 100%;
         object-fit: cover;
     }
+
+    &:hover {
+        outline: 2px solid var(--font2-color);
+        outline-offset: -2px;
+    }
 }
 
 .album-cover__overlay {
@@ -107,8 +112,8 @@ picture {
     }
 
     &:hover {
-        transform: scale(1.05);
-        transition: transform 0.2s ease-in-out;
+        outline: 2px solid var(--font2-color);
+        outline-offset: -2px;
     }
 }
 
