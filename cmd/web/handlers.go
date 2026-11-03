@@ -19,9 +19,12 @@ type albumView struct {
 	Photos []photoView
 }
 
+type albumsPage struct {
+	Albums []albumView
+}
+
 type photosPage struct {
-	Photos  []photoView
-	Albums  []albumView
+	Album   albumView
 	View    string
 	Current photoView
 	Index   int
@@ -64,7 +67,7 @@ func (app *application) apps(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) photos(w http.ResponseWriter, r *http.Request) {
+func (app *application) albums(w http.ResponseWriter, r *http.Request) {
 	photos := app.dbPhotos
 	albums := app.dbAlbums
 
@@ -94,7 +97,55 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	p := photosPage{Photos: pv, Albums: av, View: "albums"}
+	a := albumsPage{Albums: av}
+
+	err := app.html.render(w, 200, a, "base", "pages/albums.tmpl")
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func (app *application) photos(w http.ResponseWriter, r *http.Request) {
+	photos := app.dbPhotos
+	albums := app.dbAlbums
+
+	aId := r.PathValue("album")
+
+	// TODO: Update this to be a query to get only photos for album
+	pv := make([]photoView, len(photos))
+	for i, p := range photos {
+		pv[i] = photoView{
+			Photo:        p,
+			ThumbnailURL: p.ThumbPath(),
+			FullSizeURL:  p.FullPath(),
+		}
+	}
+
+	var av albumView
+	for _, a := range albums {
+		if a.ID == aId {
+			av = albumView{
+				Album:  a,
+				Photos: []photoView{},
+			}
+			break
+		}
+	}
+
+	if av.Album.ID == "" {
+		app.logger.Info("Album not found, redirecting" + aId)
+		http.Redirect(w, r, "/photos", http.StatusSeeOther)
+		return
+	}
+
+	for i, p := range pv {
+		if p.AlbumID == av.ID {
+			av.Photos = append(av.Photos, pv[i])
+		}
+	}
+
+	p := photosPage{Album: av, View: "gallery"}
 
 	if r.URL.Query().Get("view") == "slideshow" && len(pv) > 0 {
 		idx, err := strconv.Atoi(r.URL.Query().Get("index"))
@@ -105,20 +156,6 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		p.Index = idx
 		p.View = "slideshow"
 		p.Current = pv[idx]
-	}
-
-	if r.URL.Query().Get("view") == "gallery" && len(pv) > 0 {
-		p.View = "gallery"
-	}
-
-	if r.URL.Query().Get("album") != "" {
-		a := r.URL.Query().Get("album")
-		for _, album := range av {
-			if album.Name == a {
-				p.Photos = album.Photos
-				break
-			}
-		}
 	}
 
 	t := "base"

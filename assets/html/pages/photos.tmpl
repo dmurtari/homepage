@@ -1,4 +1,4 @@
-{{ define "page:title" }}Domenic | Photos{{ end }}
+{{ define "page:title" }}Domenic | {{ .Album.Name }} {{ end }}
 
 {{ define "page:head" }}
 <link rel="stylesheet" href="{{ assetHash "/static/css/photos.css" }}" />
@@ -13,76 +13,49 @@
 {{ end }}
 
 {{ define "photos:page" }}
-{{ if ne .View "albums" }}
+<header class="layout--column-center photos-header">
+	<div class="photos-header__title">
+		<h1>
+			<a href="/photos">Albums</a> > {{ .Album.Name }}
+		</h1>
+		<span>({{ len .Album.Photos }} photos)</span>
+	</div>
+
 	{{ template "photos:toolbar" . }}
-{{ end }}
+</header>
 
 {{ if eq .View "slideshow" }}
 	{{ template "photos:slideshow" . }}
-{{ else if eq .View "albums" }}
-	{{ template "photos:albums" . }}
 {{ else }}
-	{{ template "photos:gallery" .Photos }}
+	{{ template "photos:gallery" .Album.Photos }}
 {{ end }}
 {{ end }}
 
 {{ define "photos:toolbar" }}
-<div class="layout--column-center">
-	<div class="toolbar">
-		<div class="view-toggle" role="group" aria-label="View mode">
-			<a
-				href="/photos?view=gallery"
-				aria-current="page"
-				{{ if eq .View "gallery" }}disabled{{ end }}
-				hx-get="/photos?view=gallery"
-				hx-target="#photos-page"
-				hx-push-url="true"
-				class="{{ if eq .View "gallery" }}active{{ end }}">
-				Gallery
-			</a>
-			<a
-				href="/photos?view=slideshow"
-				aria-current="page"
-				{{ if eq .View "slideshow" }}disabled{{ end }}
-				hx-get="/photos?view=slideshow"
-				hx-target="#photos-page"
-				hx-push-url="true"
-				class="{{ if eq .View "slideshow" }}active{{ end }}"
-			>
-				Slideshow
-			</a>
-		</div>
-	</div>
-</div>
-{{ end }}
-
-{{ define "photos:albums" }}
-<section class="albums">
-	{{ range $i, $a := .Albums }}
+<div class="toolbar">
+	<div class="view-toggle" role="group" aria-label="View mode">
 		<a
-			href="/photos?view=gallery&album={{ $a.Name }}"
-			hx-get="/photos?view=gallery&album={{ $a.Name }}"
+			href="/photos/{{ .Album.ID }}?view=gallery"
+			aria-current="page"
+			{{ if eq .View "gallery" }}disabled{{ end }}
+			hx-get="/photos/{{ .Album.ID }}?view=gallery"
 			hx-target="#photos-page"
-			hx-push-url="true">
-			{{ template "photos:albums:cover" $a }}
+			hx-push-url="true"
+			class="{{ if eq .View "gallery" }}active{{ end }}">
+			Gallery
 		</a>
-	{{ end }}
-</section>
-{{ end }}
-
-{{ define "photos:albums:cover" }}
-<div class="album-cover">
-	{{ range $i, $p := .Photos }}
-		{{ if lt $i 4 }}
-			<div class="album-cover__item">
-				{{ template "photos:picture:thumb" $p }}
-			</div>
-		{{ end }}
-	{{ end }}
-	<span class="album-cover__overlay">
-		<span>{{ .Name }}</span>
-		<span>({{ len .Photos }} photos)</span>
-	</span>
+		<a
+			href="/photos/{{ .Album.ID }}?view=slideshow"
+			aria-current="page"
+			{{ if eq .View "slideshow" }}disabled{{ end }}
+			hx-get="/photos/{{ .Album.ID }}?view=slideshow"
+			hx-target="#photos-page"
+			hx-push-url="true"
+			class="{{ if eq .View "slideshow" }}active{{ end }}"
+		>
+			Slideshow
+		</a>
+	</div>
 </div>
 {{ end }}
 
@@ -162,7 +135,7 @@
 {{ end }}
 
 {{ define "photos:slideshow:nav-items" }}
-{{ range $i, $p := .Photos }}
+{{ range $i, $p := .Album.Photos }}
 	<a href="/photos?view=slideshow&index={{ $i }}"
 		hx-get="/photos?view=slideshow&index={{ $i }}"
 		hx-target="#slideshow-subject"

@@ -18,6 +18,12 @@
     --screen-l: 1024px;
     --screen-xl: 1400px;
 
+    --font-xs: 0.75rem;
+    --font-s: 0.875rem;
+    --font-m: 1rem;
+    --font-l: 1.25rem;
+    --font-xl: 1.5rem;
+
     --font-color: var(--dark-blue-color);
     --font2-color: var(--dark-green-color);
     --bg-color: var(--light-purple-color);

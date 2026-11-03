@@ -1,0 +1,38 @@
+{{ define "page:title" }}Domenic | Photos{{ end }}
+
+{{ define "page:head" }}
+<link rel="stylesheet" href="{{ assetHash "/static/css/albums.css" }}" />
+{{ end }}
+
+{{ define "page:content" }}
+<main class="layout--column-center">
+	{{ template "albums" . }}
+</main>
+{{ end }}
+
+{{ define "albums" }}
+<section class="albums">
+	{{ range $i, $a := .Albums }}
+		<a href="/photos/{{ $a.ID }}?view=gallery">
+			{{ template "albums:cover" $a }}
+		</a>
+	{{ end }}
+</section>
+{{ end }}
+
+{{ define "albums:cover" }}
+<div class="album-cover">
+	{{ range $i, $p := .Photos }}
+		{{ if lt $i 4 }}
+			<div class="album-cover__item">
+				{{ template "photos:picture:thumb" $p }}
+			</div>
+		{{ end }}
+	{{ end }}
+	<span class="album-cover__overlay">
+		<span>{{ .Name }}</span>
+		<span>({{ len .Photos }} photos)</span>
+	</span>
+</div>
+{{ end }}
+
