@@ -24,13 +24,14 @@ picture {
 }
 
 .view-toggle {
+    display: flex;
     margin: 0 var(--size-m);
     border: 1px solid var(--font-color);
 }
 
 .view-toggle a {
     line-height: 1;
-    padding: var(--size-xs) var(--size-xs);
+    padding: var(--size-xs) var(--size-s);
     border: 0;
     background: none;
     color: var(--font-color);
