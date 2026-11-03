@@ -65,6 +65,40 @@ picture {
     grid-gap: 10px;
 }
 
+.albums {
+    padding: 0 var(--size-m) var(--size-m);
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-gap: 10px;
+}
+
+.album-cover {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 2px;
+
+    background: var(--bg2-color);
+
+    img {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        object-fit: cover;
+    }
+}
+
+.album-cover__overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0 var(--size-xs);
+
+    background: var(--bg2-color);
+    color: var(--font-color);
+}
+
 .gallery__item {
     img {
         aspect-ratio: 1 / 1;

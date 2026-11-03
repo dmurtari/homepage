@@ -16,6 +16,8 @@
 {{ template "photos:toolbar" . }}
 {{ if eq .View "slideshow" }}
 	{{ template "photos:slideshow" . }}
+{{ else if eq .View "albums" }}
+	{{ template "photos:albums" . }}
 {{ else }}
 	{{ template "photos:gallery" .Photos }}
 {{ end }}
@@ -34,7 +36,8 @@
 				hx-push-url="true"
 				class="{{ if eq .View "gallery" }}active{{ end }}">
 				Gallery
-			</a><a
+			</a>
+			<a
 				href="/photos?view=slideshow"
 				aria-current="page"
 				{{ if eq .View "slideshow" }}disabled{{ end }}
@@ -45,8 +48,49 @@
 			>
 				Slideshow
 			</a>
+			<a
+				href="/photos?view=albums"
+				aria-current="page"
+				{{ if eq .View "albums" }}disabled{{ end }}
+				hx-get="/photos?view=albums"
+				hx-target="#photos-page"
+				hx-push-url="true"
+				class="{{ if eq .View "albums" }}active{{ end }}"
+			>
+				Albums
+			</a>
 		</div>
 	</div>
+</div>
+{{ end }}
+
+{{ define "photos:albums" }}
+<section class="albums">
+	{{ range $i, $a := .Albums }}
+		<a
+			href="/photos?view=gallery&album={{ $a.Name }}"
+			hx-get="/photos?view=gallery&album={{ $a.Name }}"
+			hx-target="#photos-page"
+			hx-push-url="true">
+			{{ template "photos:albums:cover" $a }}
+		</a>
+	{{ end }}
+</section>
+{{ end }}
+
+{{ define "photos:albums:cover" }}
+<div class="album-cover">
+	{{ range $i, $p := .Photos }}
+		{{ if lt $i 4 }}
+			<div class="album-cover__item">
+				{{ template "photos:picture:thumb" $p }}
+			</div>
+		{{ end }}
+	{{ end }}
+	<span class="album-cover__overlay">
+		<span>{{ .Name }}</span>
+		<span>({{ len .Photos }} photos)</span>
+	</span>
 </div>
 {{ end }}
 
@@ -54,10 +98,12 @@
 <section class="gallery">
 	{{ range $i, $p := . }}
 		<div class="gallery__item">
-			<a href="/photos?view=slideshow&index={{ $i }}"
+			<a
+				href="/photos?view=slideshow&index={{ $i }}"
 				hx-get="/photos?view=slideshow&index={{ $i }}"
 				hx-target="#photos-page"
-				hx-push-url="true">
+				hx-push-url="true"
+			>
 				{{ template "photos:picture:thumb" $p }}
 			</a>
 		</div>

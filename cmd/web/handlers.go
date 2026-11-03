@@ -16,7 +16,7 @@ type photoView struct {
 
 type albumView struct {
 	photos.Album
-	photos []photoView
+	Photos []photoView
 }
 
 type photosPage struct {
@@ -81,14 +81,14 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 	for i, a := range albums {
 		av[i] = albumView{
 			Album:  a,
-			photos: []photoView{},
+			Photos: []photoView{},
 		}
 	}
 
 	for i, p := range pv {
 		for j, a := range av {
 			if p.AlbumID == a.ID {
-				av[j].photos = append(av[j].photos, pv[i])
+				av[j].Photos = append(av[j].Photos, pv[i])
 				break
 			}
 		}
@@ -104,6 +104,10 @@ func (app *application) photos(w http.ResponseWriter, r *http.Request) {
 		p.Index = idx
 		p.View = "slideshow"
 		p.Current = pv[idx]
+	}
+
+	if r.URL.Query().Get("view") == "albums" && len(av) > 0 {
+		p.View = "albums"
 	}
 
 	t := "base"
