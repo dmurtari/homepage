@@ -16,8 +16,10 @@
     background: var(--bg2-color);
 
     img {
-        aspect-ratio: 1 / 1;
+        display: block;
         width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
         object-fit: cover;
     }
 

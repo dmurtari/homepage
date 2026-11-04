@@ -32,6 +32,13 @@ picture {
     }
 }
 
+@media (max-width: 768px) {
+    .photos-header {
+        flex-direction: column;
+        gap: var(--size-s);
+    }
+}
+
 .photos-header__title {
     display: flex;
     align-items: center;
@@ -86,8 +93,10 @@ picture {
 
 .gallery__item {
     img {
+        display: block;
         aspect-ratio: 1 / 1;
         width: 100%;
+        height: auto;
         object-fit: cover;
     }
 
